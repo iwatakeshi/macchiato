@@ -296,27 +296,6 @@ struct pstring {
 
 namespace mocha {
 
-	struct test_result {
-		pstring message;
-		bool did_pass = true;
-	};
-
-	struct test_flags {
-		bool negate = false;
-	};
-
-
-	template <typename T, typename U = T>
-	struct mocha_plugin {
-		lambda<bool, T, U> lambda_test;
-		lambda<pstring, T, U, test_flags> lambda_fail;
-
-		mocha_plugin(
-			lambda<bool, T, U> lambda_test,
-			lambda<pstring, T, U, test_flags> lambda_fail
-		) : lambda_test(lambda_test), lambda_fail(lambda_fail) { };
-	};
-
 
 	struct _mocha_settings {
 		bool use_color = true;
@@ -435,7 +414,35 @@ namespace mocha {
 		_mocha_util.clear();
 	};
 
+struct test_result {
+		pstring message;
+		bool did_pass = true;
+	
+		inline test_result operator+(const test_result& right) {
+			auto result = test_result();
+			result.did_pass = this->did_pass && right.did_pass;
+			result.message = this->message + pstring("\n") +
+			_mocha_util.generate_current_depth_string() + 
+			_mocha_util.generate_current_child_depth_string() + right.message;
+			return result;
+		}
+	};
 
+	struct test_flags {
+		bool negate = false;
+	};
+
+
+	template <typename T, typename U = T>
+	struct mocha_plugin {
+		lambda<bool, T, U> lambda_test;
+		lambda<pstring, T, U, test_flags> lambda_fail;
+
+		mocha_plugin(
+			lambda<bool, T, U> lambda_test,
+			lambda<pstring, T, U, test_flags> lambda_fail
+		) : lambda_test(lambda_test), lambda_fail(lambda_fail) { };
+	};
 
 	void describe(
 		pstring description,
@@ -471,7 +478,7 @@ namespace mocha {
 		_mocha_util.log_result(test_result.did_pass ? _mocha_util.result_type::pass : _mocha_util.result_type::fail);
 
 		pstring message = _mocha_util.generate_current_child_depth_string() +
-			(test_result.did_pass ? _mocha_util.color_green("Pass") : _mocha_util.color_red("Fail")) + ": " +
+			(test_result.did_pass ? _mocha_util.color_green("pass") : _mocha_util.color_red("fail")) + ": " +
 			description +
 			(test_result.did_pass ? "" : "\n" + _mocha_util.generate_current_child_depth_string() + mocha_settings.indention + test_result.message) +
 			"\n";
@@ -721,9 +728,6 @@ namespace mocha {
 			}
 		}
 	};
-
-
-
 }
 
 
