@@ -492,7 +492,7 @@ namespace mocha {
 		expect_type* equal(U expected) {
 			this->add_test_result(
 				this->actual == expected,
-				pstring("Expected ") + pstring(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + pstring(expected)
+				pstring("Expected ") + pstring(utils::to_string(this->actual)) + " to " + (this->flags.negate ? "not " : "") + "equal " + pstring(expected)
 			);
 
 			return this;
@@ -517,7 +517,7 @@ namespace mocha {
 		expect_type* within(double lower, double upper) {
 			this->add_test_result(
 				this->actual > lower && this->actual < upper,
-				pstring("Expected ") + pstring(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be above " + pstring(lower) + " and below " + pstring(upper)
+				pstring("Expected ") + pstring(utils::to_string(this->actual)) + " to " + (this->flags.negate ? "not " : "") + "be above " + pstring(lower) + " and below " + pstring(upper)
 			);
 
 			return this;
@@ -527,7 +527,7 @@ namespace mocha {
 		expect_type* above(double expected) {
 			this->add_test_result(
 				this->actual > expected,
-				pstring("Expected ") + pstring(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be greater than " + pstring(expected)
+				pstring("Expected ") + pstring(utils::to_string(this->actual)) + " to " + (this->flags.negate ? "not " : "") + "be greater than " + pstring(expected)
 			);
 
 			return this;
@@ -542,7 +542,7 @@ namespace mocha {
 		expect_type* least(double expected) {
 			this->add_test_result(
 				this->actual >= expected,
-				pstring("Expected ") + pstring(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be greater than or equal to " + pstring(expected)
+				pstring("Expected ") + pstring(utils::to_string(this->actual)) + " to " + (this->flags.negate ? "not " : "") + "be greater than or equal to " + pstring(expected)
 			);
 
 			return this;
@@ -554,7 +554,7 @@ namespace mocha {
 		expect_type* below(double expected) {
 			this->add_test_result(
 				this->actual < expected,
-				pstring("Expected ") + pstring(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be lesser than " + pstring(expected)
+				pstring("Expected ") + pstring(utils::to_string(this->actual)) + " to " + (this->flags.negate ? "not " : "") + "be lesser than " + pstring(expected)
 			);
 
 			return this;
@@ -569,7 +569,7 @@ namespace mocha {
 		expect_type* most(double expected) {
 			this->add_test_result(
 				this->actual <= expected,
-				pstring("Expected ") + pstring(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be less than or equal to " + pstring(expected)
+				pstring("Expected ") + pstring(utils::to_string(this->actual)) + " to " + (this->flags.negate ? "not " : "") + "be less than or equal to " + pstring(expected)
 			);
 
 			return this;
@@ -583,7 +583,7 @@ namespace mocha {
 
 			return this->satisfy(
 				result,
-				pstring("Expected ") + pstring(this->actual) + " to " + (this->flags.negate ? "not " : "") + "satisfy the given test"
+				pstring("Expected ") + pstring(utils::to_string(this->actual)) + " to " + (this->flags.negate ? "not " : "") + "satisfy the given test"
 			);
 		};
 		expect_type* satisfy(lambda<bool, T> lambda_test, lambda<pstring, T, test_flags> lambda_fail) {
