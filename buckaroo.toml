@@ -1,1 +1,6 @@
-targets = ["//:mocha"]
+targets = [ "//:mocha" ]
+
+[[dependency]]
+package = "github.com/iwatakeshi/to_string"
+version = "*"
+

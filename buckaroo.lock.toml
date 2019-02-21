@@ -1,0 +1,9 @@
+manifest = "a98c1ca9314b82b6af1c598c777edb6e984609547a73a14bc482b2f5382a8672"
+
+[[dependency]]
+package = "github.com/iwatakeshi/to_string"
+target = "//:to_string"
+
+[lock."github.com/iwatakeshi/to_string"]
+versions = [ "tag=1.0.0-alpha" ]
+revision = "c22655357fbe44841c79acf12fd7f60d6d317952"

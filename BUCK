@@ -1,3 +1,5 @@
+load('//:buckaroo_macros.bzl', 'buckaroo_deps')
+
 prebuilt_cxx_library(
   name = 'mocha',
   header_only = True,
@@ -11,6 +13,7 @@ prebuilt_cxx_library(
   visibility = [
     'PUBLIC',
   ],
+  deps = buckaroo_deps()
 )
 
 cxx_binary(
