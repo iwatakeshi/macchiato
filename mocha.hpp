@@ -24,12 +24,12 @@
 
 // By Luc Danton: http://chat.stackoverflow.com/transcript/message/21940188#21940188
 // http://coliru.stacked-crooked.com/a/015660099e486a80
-// Works as function<R, A, B, C> instead of std::function<R(A, B, C)>
+// Works as lambda<R, A, B, C> instead of std::function<R(A, B, C)>
 //
 // v0.2.0
 
-#ifndef FUNCTION_SIGNATURE_H
-#define FUNCTION_SIGNATURE_H
+#ifndef LAMBDA_SIGNATURE_H
+#define LAMBDA_SIGNATURE_H
 
 #include <utility>
 #include <memory>
@@ -69,23 +69,23 @@ public:
 };
 
 template<typename R, typename... Args>
-struct function {
+struct lambda {
 	template<typename Functor>
-	function(Functor functor): functor(new holder<Functor, R, Args...>(std::move(functor))) {}
+	lambda(Functor functor): functor(new holder<Functor, R, Args...>(std::move(functor))) {}
 
-	function(function const& other): functor(other.functor->clone()) {}
+	lambda(lambda const& other): functor(other.functor->clone()) {}
 	
-	function& operator=(function const& other) { functor = other.functor->clone(); return *this; }
+	lambda& operator=(lambda const& other) { functor = other.functor->clone(); return *this; }
 
-	function(function&& other) : functor { std::move(other.functor) }{}
+	lambda(lambda&& other) : functor { std::move(other.functor) }{}
 	
-	function& operator=(function&& other) {
+	lambda& operator=(lambda&& other) {
 		functor = std::move(other.functor);
 
 		return *this;
 	}
-	//function(function&&) = default;
-	//function& operator=(function&&) = default;
+	//lambda(lambda&&) = default;
+	//lambda& operator=(lambda&&) = default;
 
 	R operator()(Args... args) { return functor->call(std::forward<Args>(args)...); }
 private:
@@ -289,7 +289,7 @@ struct pstring {
 // fabs
 #include <cmath>
 
-//#include "functionSig.h"
+//#include "lambdaSig.h"
 //#include "pstring.h"
 
 namespace mocha {
@@ -306,12 +306,12 @@ namespace mocha {
 
 	template <typename T, typename U = T>
 	struct mocha_plugin {
-		function<bool, T, U> lambda_test;
-		function<pstring, T, U, test_flags> lambda_fail;
+		lambda<bool, T, U> lambda_test;
+		lambda<pstring, T, U, test_flags> lambda_fail;
 
 		mocha_plugin(
-			function<bool, T, U> lambda_test,
-			function<pstring, T, U, test_flags> lambda_fail
+			lambda<bool, T, U> lambda_test,
+			lambda<pstring, T, U, test_flags> lambda_fail
 		) : lambda_test(lambda_test), lambda_fail(lambda_fail) { };
 	};
 
@@ -437,7 +437,7 @@ namespace mocha {
 
 	void describe(
 		pstring description,
-		function<void> lambda_describe
+		lambda<void> lambda_describe
 	) {
 		// We just got to this depth_
 		_mocha_util.increment_depth();
@@ -463,7 +463,7 @@ namespace mocha {
 		_mocha_util.log(message);
 	};
 
-	void it(pstring description, function<mocha::test_result> lambda_it) {
+	void it(pstring description, lambda<mocha::test_result> lambda_it) {
 		mocha::test_result test_result = lambda_it();
 
 		_mocha_util.log_result(test_result.did_pass ? _mocha_util.result_type::pass : _mocha_util.result_type::fail);
@@ -576,7 +576,7 @@ namespace mocha {
 			return this->most(expected);
 		};
 
-		expect_type* satisfy(function<bool, T> lambda_test) {
+		expect_type* satisfy(lambda<bool, T> lambda_test) {
 			bool result = lambda_test(this->actual);
 
 			return this->satisfy(
@@ -584,7 +584,7 @@ namespace mocha {
 				pstring("Expected ") + pstring(this->actual) + " to " + (this->flags.negate ? "not " : "") + "satisfy the given test"
 			);
 		};
-		expect_type* satisfy(function<bool, T> lambda_test, function<pstring, T, test_flags> lambda_fail) {
+		expect_type* satisfy(lambda<bool, T> lambda_test, lambda<pstring, T, test_flags> lambda_fail) {
 			bool result = lambda_test(this->actual);
 			pstring message = lambda_fail(this->actual, this->flags);
 
@@ -612,9 +612,9 @@ namespace mocha {
 
 		class member_logic {
 			expect_type* expect_pointer;
-			function<void, expect_type*> getter_lambda;
+			lambda<void, expect_type*> getter_lambda;
 			public:
-				member_logic(expect_type *i, function<void, expect_type*> getter_lambda) : expect_pointer(i), getter_lambda(getter_lambda) {};
+				member_logic(expect_type *i, lambda<void, expect_type*> getter_lambda) : expect_pointer(i), getter_lambda(getter_lambda) {};
 
 				// Setter
 				expect_type* operator = (const expect_type i) {
@@ -759,11 +759,11 @@ namespace mocha {
 #define MOCHA_INTERNAL_UNIQUE_NAME( name ) MOCHA_INTERNAL_UNIQUE_NAME_LINE( name, __LINE__ )
 
 namespace mocha {
-	std::vector<function<void>> run_registry;
+	std::vector<lambda<void>> run_registry;
 
 	void _run_all_registered_tests_from_macro() {
 		// Run all of the calls made in `MOCHA_RUN_TESTS([] { /* ... */ });
-		for(function<void> i : mocha::run_registry) {
+		for(lambda<void> i : mocha::run_registry) {
 			i();
 		}
 	};
