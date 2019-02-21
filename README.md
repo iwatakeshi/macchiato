@@ -1,10 +1,10 @@
-# Macchiato
-
-[![Join the chat at https://gitter.im/MadLittleMods/macchiato](https://badges.gitter.im/MadLittleMods/macchiato.svg)](https://gitter.im/MadLittleMods/macchiato?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+# mocha
 
 C++ test framework for desktop and Arduino.
 
-Macchiato strives to be as close and familiar as [Mocha](http://mochajs.org/)/[Chai](http://chaijs.com/).
+The original repository can be found [here](https://github.com/MadLittleMods/macchiato).
+
+mocha strives to be as close and familiar as [mocha](http://mochajs.org/)/[chai](http://chaijs.com/).
 
 ![](http://i.imgur.com/fhGebYm.png)
 
@@ -14,32 +14,32 @@ Macchiato strives to be as close and familiar as [Mocha](http://mochajs.org/)/[C
 
 Just add the `include` folder to your include path.
 
-Macchiato is also available as a header-only library in `single_include/Macchiato.hpp`. This is a no-dependency/fully-independent version of Macchiato. We simply concatenate the dependencies together and remove the `#include *.h` to the h file dependencies
+mocha is also available as a header-only library in `single_include/mocha.hpp`. This is a no-dependency/fully-independent version of mocha. We simply concatenate the dependencies together and remove the `#include *.h` to the h file dependencies
 
 ## Built in runner
 
-Macchiato has a main function that you can use to remove some boilerplate from your testing code. The code below works on desktop and Arduino.
+mocha has a main function that you can use to remove some boilerplate from your testing code. The code below works on desktop and Arduino.
 
 On the Arduino platform, it spits out the test results over Serial every 1 second.
 
 On the desktop platform, you can pass in command-line arguments/flags.
 
 ```cpp
-// This tells Macchiato to provide a main function. Only do this in one source/cpp file
-#define MACCHIATO_MAIN
-#include "Macchiato.h"
-using namespace Macchiato;
+// This tells mocha to provide a main function. Only do this in one source/cpp file
+#define MOCHA_MAIN
+#include "mocha.h"
+using namespace mocha;
 
-MACCHIATO_RUNTESTS([] {
+MOCHA_RUN_TESTS([] {
 	describe("Foo", [&]() {
 		describe("with bar", [&]() {
 			it("should baz", [&]() {
-				return expect(true).to->equal(true)->getResult();
+				return expect(true).to->equal(true)->result();
 			});
 
 			// This test will fail because it is false != true
 			it("should qux", [&]() {
-				return expect(false).to->equal(true)->getResult();
+				return expect(false).to->equal(true)->result();
 			});
 
 			// An `it` call without a callback is considered "pending"
@@ -52,9 +52,9 @@ MACCHIATO_RUNTESTS([] {
 
 ## Own `main`
 
-You can also use your own `main` function. Check [`examples/example2.cpp`](https://github.com/MadLittleMods/macchiato/blob/master/examples/example2.cpp) for a complete example
+You can also use your own `main` function. Check [`examples/example2.cpp`](https://github.com/iwatakeshi/mocha/blob/master/examples/example2.cpp) for a complete example
 
-Just call the `describe`/`it` functions in your main loop or wherever. No need for the `MACCHIATO_RUNTESTS` macro unless you want to do things there still.
+Just call the `describe`/`it` functions in your main loop or wherever. No need for the `MOCHA_RUN_TESTS` macro unless you want to do things there still.
 
 
 
@@ -67,33 +67,33 @@ Requires C++11. Works on the following platforms:
  - Visual Studio
  - Arduino
 
-Macchiato uses a `PlatformString` type that is made to be compatible on many platforms(Arduino's `String` and normal desktop `std::string`). There should be no difference in dealing with `PlatformString`'s because it has implicit cast/conversions and operators to all the normal types. If you need some more compatibility, make an issue/pull request.
+mocha uses a `string` type that is made to be compatible on many platforms(Arduino's `String` and normal desktop `std::string`). There should be no difference in dealing with `string`'s because it has implicit cast/conversions and operators to all the normal types. If you need some more compatibility, make an issue/pull request.
 
 
 
 # API
 
- - `describe(PlatformString description, function<void> callback)`
+ - `describe(string description, function<void> callback)`
  	 - `describe` can be nested as many times as you would like. Each describe will indent the output inside.
- - `it(PlatformString testDescription, function<Macchiato::TestResult> callback)`
+ - `it(string testDescription, function<mocha::test_result> callback)`
  	 - Call `it` inside of `describe` blocks
- - `expect(Ta actual)`: (BDD)
+ - `expect(T actual)`: (BDD)
 
- - `PlatformString Macchiato::GetResultantTestOutput()`: Returns the test output including a summary
- - `void Macchiato::ClearTestResults();`: Clears the test output and resets the test counts. Useful for multiple or subsequent calls that need to be separated.
+ - `string mocha::output()`: Returns the test output including a summary
+ - `void mocha::clear();`: Clears the test output and resets the test counts. Useful for multiple or subsequent calls that need to be separated.
 
 ```cpp
 #include <iostream>
-#include "Macchiato.h"
-using namespace Macchiato;
+#include "mocha.h"
+using namespace mocha;
 
 describe("Box", [&]() {
 	it("should have 6 faces", [&]() {
-		return expect(MyBox().getNumFaces())).to->equal(6)->getResult();
+		return expect(MyBox().getNumFaces())).to->equal(6)->result();
 	});
 });
 
-std::cout << Macchiato::GetResultantTestOutput() << std::endl;
+std::cout << mocha::output() << std::endl;
 ```
 
 
@@ -102,7 +102,7 @@ std::cout << Macchiato::GetResultantTestOutput() << std::endl;
 Behaviour driven development (BDD)
 
  - `expect`
- 	 - `expect(actual).then->then->then->equal(expected)->getResults();`
+ 	 - `expect(actual).then->then->then->equal(expected)->result();`
 
 ## Language Chains
 
@@ -129,14 +129,14 @@ These provide actual functionality in the chain.
 
  - `never`: Negates any of assertions following in the chain.
  	 - *substitute for `not` because `not` is a reserved keyword in C++*
- 	 - `expect(3).to->never->equal->(3)->getResults();`
+ 	 - `expect(3).to->never->equal->(3)->result();`
 
- - `equal(Te value)`: Asserts that the target is equal (==) to `value`.
+ - `equal(U value)`: Asserts that the target is equal (==) to `value`.
  	 - Aliases: `eql(...)`
  - `closeTo(double expected, double tolerance)`: Asserts that the target is equal to `expected`, to within a +/- `tolerance` range.
  - `within(double lower, double upper)`: Asserts that the target is within a range.
  - `above(double value)`: Asserts that the target is greater than `value`.
- 	 - Aliases: `gt(...)`, `greaterThan(...)`
+ 	 - Aliases: `gt(...)`, `greater_than(...)`
  - `least(double value)`: Asserts that the target is greater than or equal to `value`.
  	 - Aliases: `gte(...)`
  - `below(double value)`: Asserts that the target is less than `value`.
@@ -144,43 +144,43 @@ These provide actual functionality in the chain.
  - `most(double value)`: Asserts that the target is less than or equal to `value`.
  	 - Aliases: `lte(...)`
  - `satisfy`: Asserts that the target passes a given truth test.
- 	 - `satisfy(function<bool, Ta> testFunc)`
- 	 - `satisfy(function<bool, Ta> testFunc, function<PlatformString, Ta, expectFlags> failMessageFunc)`
- 	 - `satisfy(Macchiato::MacchiatoPlugin plugin, Te expected)`
- 	 - `satisfy(bool testResultBool, PlatformString failMessage)`
+ 	 - `satisfy(function<bool, T> lambda_test)`
+ 	 - `satisfy(function<bool, T> lambda_test, function<string, T, expectFlags> lambda_fail)`
+ 	 - `satisfy(mocha::mocha_plugin plugin, U expected)`
+ 	 - `satisfy(bool testResultBool, string failMessage)`
 
 ## Plugins
 
-Plugin-like functionality is supported via `Macchiato::MacchiatoPlugin` which can be used in `expect().satisify(Macchiato::MacchiatoPlugin plugin, Te expected)`.
+Plugin-like functionality is supported via `mocha::mocha_plugin` which can be used in `expect().satisify(mocha::mocha_plugin plugin, U expected)`.
 
 ```cpp
-MacchiatoPlugin<typename Ta, typename Te = Ta>(
-	function<bool, Ta, Te> testFunc,
-	function<PlatformString, Ta, Te, testFlags> failMessageFunc
+mocha_plugin<typename T, typename U = T>(
+	function<bool, T, U> lambda_test,
+	function<string, T, U, test_flags> lambda_fail
 );
 ```
 
 ### Example
 
 ```cpp
-#include "Macchiato.h"
-using namespace Macchiato;
+#include "mocha.h"
+using namespace mocha;
 
 // For `fmod` (used in the example plugin)
 #include <math.h>
 
-auto doesDivideEvenlyIntoPlugin = MacchiatoPlugin<double>(
+auto plugin_does_divide_evenly = mocha_plugin<double>(
 	[&](double actual, double expected) {
 		return fmod(expected, actual) == 0;
 	},
-	[&](double actual, double expected, testFlags flags) {
-		return PlatformString("Expected ") + PlatformString(actual) + " to " + (flags.negate ? "not " : "") + "divide evenly into " + PlatformString(expected) + " but got a remainder of " + PlatformString(fmod(expected, actual));
+	[&](double actual, double expected, test_flags flags) {
+		return string("Expected ") + string(actual) + " to " + (flags.negate ? "not " : "") + "divide evenly into " + string(expected) + " but got a remainder of " + string(fmod(expected, actual));
 	}
 );
 
 describe("Some numbers", [&]() {
 	it("should divide evenly into other numbers", [&]() {
-		return expect(2.0).to->satisfy(doesDivideEvenlyIntoPlugin, 10.0)->getResult();
+		return expect(2.0).to->satisfy(plugin_does_divide_evenly, 10.0)->result();
 	});
 });
 ```
@@ -190,48 +190,48 @@ describe("Some numbers", [&]() {
 
 # Options:
 
-  - `Macchiato::MacchiatoSettings`
- 	 - `useAnsiColor`: bool - whether to add ANSI escape codes for colored text. (Supported in many consoles)
+  - `mocha::mocha_settings`
+ 	 - `use_color`: bool - whether to add ANSI escape codes for colored text. (Supported in many consoles)
  	 	 - Default: `true`
  	 	 - If you are wanting to have colored Text in Windows (CMD prompt), follow this guide [*Using libuv with Windows and Visual Studio: Getting Started* by Eric Eastwood](http://ericeastwood.com/blog/24/using-libuv-with-windows-and-visual-studio-getting-started)
- 	 - `indentToken`: PlatformString - The indentation string/token every time we go a level deeper
+ 	 - `indentation`: string - The indentation string/token every time we go a level deeper
  	 	 - Default: `"\t"`
 
 
 # CLI flags
 
-If you are using the Macchiato main runner these commands will be parsed automattically.
+If you are using the mocha main runner these commands will be parsed automattically.
 
  - `--no-color`: Remove the ANSI color escape codes from the resultant output (plain text)
 
-If you are using your own `int main()` (default) and want to have Macchiato parse the commands, just pass in `argc` and `argv` to `Macchiato::MacchiatoParseCLIArgs(argc, argv)`.
+If you are using your own `int main()` (default) and want to have mocha parse the commands, just pass in `argc` and `argv` to `mocha::parse_cli_args(argc, argv)`.
 
 ```cpp
 int main (int argc, char * const argv[]) {
 	// Parse the incoming arguments
-	Macchiato::MacchiatoParseCLIArgs(argc, argv);
+	mocha::parse_cli_args(argc, argv);
 
 	// Do some tests... describe(...) { it(...) {}; };
 
 	// Output the test results
-	std::cout << Macchiato::GetResultantTestOutput() << std::endl;
+	std::cout << mocha::output() << std::endl;
 };
 ```
 
 
 
-# Differences from Mocha.js
+# Differences from mocha.js
 
-We strive to make the API syntax the same between Macchiato and Mocha. Some sacrifices had to be made for C++.
+We strive to make the API syntax the same between mocha and mocha. Some sacrifices had to be made for C++.
 
-We currently do not support the full Mocha.js API. Missing TDD and some BDD `expect` members.
+We currently do not support the full mocha.js API. Missing TDD and some BDD `expect` members.
 
- - Some member names used in Mocha are reserved keywords in C++ which needed to be renamed
- 	 - `then`(Macchiato C++) is equivalent to `and`(Mocha JS)
- 	 - `never`(Macchiato C++) is equivalent to `not`(Mocha JS)
+ - Some member names used in mocha are reserved keywords in C++ which needed to be renamed
+ 	 - `then`(mocha C++) is equivalent to `and`(mocha JS)
+ 	 - `never`(mocha C++) is equivalent to `not`(mocha JS)
  - Inline function declaration syntax difference
- 	 - Macchiato C++: `[&](){ /*...*/ }`
- 	 - Mocha JS: `function() { /*...*/ }`
+ 	 - mocha C++: `[&](){ /*...*/ }`
+ 	 - mocha JS: `function() { /*...*/ }`
  - Test chaining syntax is different
- 	 - Macchiato C++: `expect(3).to->equal(3)->getResults();`
- 	 - Mocha JS: `expect(3).to.equal(3);`
+ 	 - mocha C++: `expect(3).to->equal(3)->result();`
+ 	 - mocha JS: `expect(3).to.equal(3);`

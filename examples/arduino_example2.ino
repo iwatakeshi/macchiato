@@ -1,5 +1,5 @@
-#include "Macchiato.h"
-using namespace Macchiato;
+#include "mocha.hpp"
+using namespace mocha;
 
 
 // Keeps track since we last sent a serial in our debug serial
@@ -18,17 +18,17 @@ void loop() {
 
 		// Necessary because we run multiple times over and over
 		// We don't want to see the sum of all, just the results of this run, so we need to reset
-		Macchiato::ClearTestResults();
+		mocha::clear();
 
 		describe("Foo", [&]() {
 			describe("with bar", [&]() {
 				it("should baz", [&]() {
-					return expect(true).to->equal(true)->getResult();
+					return expect(true).to->equal(true)->result();
 				});
 
 				// This test will fail because it is false != true
 				it("should qux", [&]() {
-					return expect(false).to->equal(true)->getResult();
+					return expect(false).to->equal(true)->result();
 				});
 
 				// An `it` call without a callback is considered "pending"
@@ -37,7 +37,7 @@ void loop() {
 			});
 		});
 
-		Serial.print(Macchiato::GetResultantTestOutput().value);
+		Serial.print(mocha::output().value);
 
 		sinceSerial = 0;
 	}

@@ -1,18 +1,18 @@
-// This tells Macchiato to provide a main function. Only do this in one source/cpp file
-#define MACCHIATO_MAIN
-#include "Macchiato.h"
-using namespace Macchiato;
+// This tells mocha to provide a main function. Only do this in one source/cpp file
+#define MOCHA_MAIN
+#include "mocha.hpp"
+using namespace mocha;
 
-MACCHIATO_RUNTESTS([] {
+MOCHA_RUN_TESTS([] {
 	describe("Foo", [&]() {
 		describe("with bar", [&]() {
 			it("should baz", [&]() {
-				return expect(true).to->equal(true)->getResult();
+				return expect(true).to->equal(true)->result();
 			});
 
 			// This test will fail because it is false != true
 			it("should qux", [&]() {
-				return expect(false).to->equal(true)->getResult();
+				return expect(false).to->equal(true)->result();
 			});
 
 			// An `it` call without a callback is considered "pending"

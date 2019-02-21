@@ -1,18 +1,18 @@
-// This tells mocha to provide a main function. Only do this in one source/cpp file
-#define MOCHA_MAIN
+#include <iostream>
 #include "mocha.hpp"
+// Optionally use the namespace to do `describe` instead of `mocha::describe`, etc
 using namespace mocha;
 
-MOCHA_RUN_TESTS([] {
+int main() {
 	describe("Foo", [&]() {
 		describe("with bar", [&]() {
 			it("should baz", [&]() {
-				return expect(true).to->equal(true)->getResult();
+				return expect(true).to->equal(true)->result();
 			});
 
 			// This test will fail because it is false != true
 			it("should qux", [&]() {
-				return expect(false).to->equal(true)->getResult();
+				return expect(false).to->equal(true)->result();
 			});
 
 			// An `it` call without a callback is considered "pending"
@@ -20,4 +20,8 @@ MOCHA_RUN_TESTS([] {
 			it("should norf");
 		});
 	});
-});
+
+	std::cout << mocha::output() << std::endl;
+
+	return 0;
+}

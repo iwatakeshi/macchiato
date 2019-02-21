@@ -1,18 +1,18 @@
 #include <iostream>
-#include "Macchiato.h"
+#include "mocha.hpp"
 // Optionally use the namespace to do `describe` instead of `Macchiato::describe`, etc
-using namespace Macchiato;
+using namespace mocha;
 
 int main() {
 	describe("Foo", [&]() {
 		describe("with bar", [&]() {
 			it("should baz", [&]() {
-				return expect(true).to->equal(true)->getResult();
+				return expect(true).to->equal(true)->result();
 			});
 
 			// This test will fail because it is false != true
 			it("should qux", [&]() {
-				return expect(false).to->equal(true)->getResult();
+				return expect(false).to->equal(true)->result();
 			});
 
 			// An `it` call without a callback is considered "pending"
@@ -21,7 +21,7 @@ int main() {
 		});
 	});
 
-	std::cout << Macchiato::GetResultantTestOutput() << std::endl;
+	std::cout << mocha::output() << std::endl;
 
 	return 0;
 }
