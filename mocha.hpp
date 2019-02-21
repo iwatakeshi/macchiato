@@ -16,6 +16,8 @@
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------
 
+#include <to_string.hpp>
+
 #if defined(ARDUINO)
 #include "Arduino.h"
 #endif
@@ -506,7 +508,7 @@ namespace mocha {
 		expect_type* close_to(double expected, double tolerance) {
 			this->add_test_result(
 				fabs(this->actual - expected) <= tolerance,
-				pstring("Expected ") + pstring(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + pstring(expected) + " within tolerance of " + pstring(tolerance)
+				pstring("Expected ") + pstring(utils::to_string(this->actual)) + " to " + (this->flags.negate ? "not " : "") + "equal " + pstring(expected) + " within tolerance of " + pstring(tolerance)
 			);
 
 			return this;
