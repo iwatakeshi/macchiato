@@ -426,6 +426,24 @@ struct test_result {
 			_mocha_util.generate_current_child_depth_string() + right.message;
 			return result;
 		}
+
+		inline test_result operator &&(const test_result& right) {
+			auto result = test_result();
+			result.did_pass = this->did_pass && right.did_pass;
+			result.message = this->message + pstring("\n") +
+			_mocha_util.generate_current_depth_string() + 
+			_mocha_util.generate_current_child_depth_string() + right.message;
+			return result;
+		}
+
+		inline test_result operator ||(const test_result& right) {
+			auto result = test_result();
+			result.did_pass = this->did_pass || right.did_pass;
+			result.message = this->message + pstring("\n") +
+			_mocha_util.generate_current_depth_string() + 
+			_mocha_util.generate_current_child_depth_string() + right.message;
+			return result;
+		}
 	};
 
 	struct test_flags {
