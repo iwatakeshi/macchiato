@@ -38,8 +38,17 @@
 namespace mocha {
 
 	namespace helpers {
+		// Compareint
+		bool strict_equal(int a, int b) { return a == b; }
+		bool strict_equal(int a, int64_t b) { return false; }
+		bool strict_equal(int a, const char* b) { return false; };
+		bool strict_equal(int a, double b) { return false; };
+		bool strict_equal(int a, float b) { return false; };
+		bool strict_equal(int a, char b) { return false; };
+		bool strict_equal(int a, std::string b) { return false; };
 		// Compare with int64_t
-		bool strict_equal (int64_t a, int64_t b) { return a == b; }
+		bool strict_equal(int64_t a, int64_t b) { return a == b; }
+		bool strict_equal(int64_t a, int b) { return false; }
 		bool strict_equal(int64_t a, const char* b) { return false; };
 		bool strict_equal(int64_t a, double b) { return false; };
 		bool strict_equal(int64_t a, float b) { return false; };
@@ -48,6 +57,8 @@ namespace mocha {
 
 	  // Compare with doubles
 		bool strict_equal(double a, double b) { return a == b; };
+		bool strict_equal(double a, int64_t b) { return false; }
+		bool strict_equal(double a, int b) { return false; }
 		bool strict_equal(double a, const char* b) { return false; };
 		bool strict_equal(double a, float b) { return false; };
 		bool strict_equal(double a, char b) { return false; };
@@ -55,6 +66,8 @@ namespace mocha {
 
 		// Compare with floats
 		bool strict_equal(float a, float b) { return a == b; };
+		bool strict_equal(float a, int64_t b) { return false; }
+		bool strict_equal(float a, int b) { return false; }
 		bool strict_equal(float a, const char* b) { return false; };
 		bool strict_equal(float a, double b) { return false; };
 		bool strict_equal(float a, char b) { return false; };
@@ -62,6 +75,8 @@ namespace mocha {
 
 		// Compare with char
 		bool strict_equal(char a, char b) { return a == b; };
+		bool strict_equal(char a, int64_t b) { return false; }
+		bool strict_equal(char a, int b) { return false; }
 		bool strict_equal(char a, const char* b) { return false; };
 		bool strict_equal(char a, double b) { return false; };
 		bool strict_equal(char a, float b) { return false; };
@@ -69,12 +84,16 @@ namespace mocha {
 
 		bool strict_equal(std::string a, std::string b) { return a.compare(b) == 0; };
 		bool strict_equal(std::string a, const char* b) { std::string s(b); return a == b; };
+		bool strict_equal(std::string a, int64_t b) { return false; }
+		bool strict_equal(std::string a, int b) { return false; }
 		bool strict_equal(std::string a, double b) { return false; };
 		bool strict_equal(std::string a, float b) { return false; };
 		bool strict_equal(std::string a, char b) { return false; };
 
 		// Compare with bools
 		bool strict_equal(bool a, bool b) { return a == b; }		
+		bool strict_equal(bool a, int64_t b) { return false; }
+		bool strict_equal(bool a, int b) { return false; }
 		bool strict_equal(bool a, const char* b) { return false; };
 		bool strict_equal(bool a, double b) { return false; }
 		bool strict_equal(bool a, float b) { return false; }
