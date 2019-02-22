@@ -1,6 +1,7 @@
 # mocha
 
-A simple test framework for C++.
+Mocha/Chai inspired C++ test framework (BDD)
+
 
 The original repository can be found [here](https://github.com/MadLittleMods/macchiato).
 
@@ -10,11 +11,15 @@ mocha strives to be as close and familiar as [mocha](http://mochajs.org/)/[chai]
 
 ## Latest Version: 0.6.5
 
-# How to use/include
+# Usage
 
-Just add the `include` folder to your include path.
+To use this library, install [buckaroo](https://github.com/LoopPerfect/buckaroo/wiki/Installation#buckaroo) and [buck](https://github.com/LoopPerfect/buckaroo/wiki/Installation#buck). Once installed, [initialize](https://github.com/LoopPerfect/buckaroo/wiki/Commands#init) buckaroo in your project folder and run the following command:
 
-mocha is also available as a header-only library in `single_include/mocha.hpp`. This is a no-dependency/fully-independent version of mocha. We simply concatenate the dependencies together and remove the `#include *.h` to the h file dependencies
+```bash
+# Add the latest version
+buckaroo add github.com/iwatakeshi/array/
+```
+
 
 ## Built in runner
 
