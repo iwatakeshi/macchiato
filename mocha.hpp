@@ -38,7 +38,7 @@
 namespace mocha {
 
 	namespace helpers {
-		// Compareint
+		// Compare with int
 		bool strict_equal(int a, int b) { return a == b; }
 		bool strict_equal(int a, int64_t b) { return false; }
 		bool strict_equal(int a, const char* b) { return false; };
@@ -111,6 +111,80 @@ namespace mocha {
 		bool strict_equal(const char* a, double b) { return false; };
 		bool strict_equal(const char* a, float b) { return false; };
 		bool strict_equal(const char* a, char b) { return false; };
+
+		// Compare with int
+		bool equal(int a, int b) { return a == b; }
+		bool equal(int a, int64_t b) { return a == b; }
+		bool equal(int a, const char* b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
+		bool equal(int a, double b) { return a == int(b); };
+		bool equal(int a, float b) { return a == int(b); };
+		bool equal(int a, char b) { return a == int(b); };
+		bool equal(int a, std::string b) { return a == std::stoi(b); };
+		// Compare with int64_t
+		bool equal(int64_t a, int64_t b) { return a == b; }
+		bool equal(int64_t a, int b) { return a == b; }
+		bool equal(int64_t a, const char* b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
+		bool equal(int64_t a, double b) { return a == int64_t(b); };
+		bool equal(int64_t a, float b) { return a == int64_t(b); };
+		bool equal(int64_t a, char b) { return a == int64_t(b); };
+		bool equal(int64_t a, std::string b) { return a == std::stoll(b); };
+
+	  // Compare with doubles
+		bool equal(double a, double b) { return a == b; };
+		bool equal(double a, int64_t b) { return a == double(b); }
+		bool equal(double a, int b) { return a == double(b); }
+		bool equal(double a, const char* b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
+		bool equal(double a, float b) { return a == double(b); };
+		bool equal(double a, char b) { return a == double(int(b)); };
+		bool equal(double a, std::string b) { return a == std::stod(b); };
+
+		// Compare with floats
+		bool equal(float a, float b) { return a == b; };
+		bool equal(float a, int64_t b) { return a == float(b); }
+		bool equal(float a, int b) { return a == float(b); }
+		bool equal(float a, const char* b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
+		bool equal(float a, double b) { return a == float(b); };
+		bool equal(float a, char b) { return a == float(int(b)); };
+		bool equal(float a, std::string b) { return a == std::stof(b); };
+
+		// Compare with char
+		bool equal(char a, char b) { return a == b; };
+		bool equal(char a, int64_t b) { return int64_t(a) == b; }
+		bool equal(char a, int b) { return int64_t(a) == b; }
+		bool equal(char a, const char* b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
+		bool equal(char a, double b) { return int64_t(a) == int64_t(b); };
+		bool equal(char a, float b) { return int64_t(a) == int64_t(b); };
+		bool equal(char a, std::string b) { return utils::to_string(a).compare(b) == 0; };
+
+		bool equal(std::string a, std::string b) { return a.compare(b) == 0; };
+		bool equal(std::string a, const char* b) { std::string s(b); return a == b; };
+		bool equal(std::string a, int64_t b) { return a.compare(utils::to_string(b)) == 0; }
+		bool equal(std::string a, int b) { return a.compare(utils::to_string(b)) == 0; }
+		bool equal(std::string a, double b) { return a.compare(utils::to_string(b)) == 0; };
+		bool equal(std::string a, float b) { return a.compare(utils::to_string(b)) == 0; };
+		bool equal(std::string a, char b) { return a.compare(utils::to_string(b)) == 0; };
+
+		// Compare with bools
+		bool equal(bool a, bool b) { return a == b; }		
+		bool equal(bool a, int64_t b) { return a == b; }
+		bool equal(bool a, int b) { return a == b; }
+		bool equal(bool a, const char* b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
+		bool equal(bool a, double b) { return a == int(b); }
+		bool equal(bool a, float b) { return a == int(b); }
+		bool equal(bool a, char b) { return a == int(b); }
+		bool equal(bool a, std::string b) { return utils::to_string(a).compare(b) == 0; }
+
+		// Compare with const char*
+		bool equal(const char* a, const char* b) {
+			std::string c(a);
+			std::string d(b);
+			return c.compare(b) == 0;
+		}
+		bool equal(const char* a, bool b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
+		bool equal(const char* a, int64_t b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
+		bool equal(const char* a, double b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
+		bool equal(const char* a, float b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
+		bool equal(const char* a, char b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
 
 	}
 
@@ -287,19 +361,7 @@ struct test_result {
 
 		template <typename U>
 		expect_type* equal(U expected) {
-			bool result = helpers::strict_equal(this->actual, expected);
-
-			// std::cout << utils::to_string(is_c_str<decltype(this->actual)>::value) << ", "
-			// 		<< utils::to_string(is_c_str<decltype(expected)>::value) << std::endl;
-			
-			// bool is_actual_c_str = is_c_str<decltype(this->actual)>::value;
-			// bool is_expected_c_str = is_c_str<decltype(this->actual)>::value;
-
-			// if (is_actual_c_str && is_expected_c_str) {
-			// 	result = strict_equal(this->actual, expected);			
-			// } else if (!is_actual_c_str && !is_expected_c_str) {
-			// 	result == this->actual == expected;
-			// }
+			bool result = helpers::equal(this->actual, expected);
 
 			this->add_test_result(
 				result,
@@ -310,6 +372,23 @@ struct test_result {
 		};
 		template <typename U>
 		expect_type* eql(U expected) {
+			return this->equal(expected);
+		};
+
+		template <typename U>
+		expect_type* strict_equal(U expected) {
+			bool result = helpers::strict_equal(this->actual, expected);
+
+			this->add_test_result(
+				result,
+				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + utils::to_string(expected)
+			);
+
+			return this;
+		};
+
+		template <typename U>
+		expect_type* seql(U expected) {
 			return this->equal(expected);
 		};
 
