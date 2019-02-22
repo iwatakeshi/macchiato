@@ -1,6 +1,6 @@
 # mocha
 
-C++ test framework for desktop and Arduino.
+A simple test framework for C++.
 
 The original repository can be found [here](https://github.com/MadLittleMods/macchiato).
 
@@ -18,9 +18,7 @@ mocha is also available as a header-only library in `single_include/mocha.hpp`. 
 
 ## Built in runner
 
-mocha has a main function that you can use to remove some boilerplate from your testing code. The code below works on desktop and Arduino.
-
-On the Arduino platform, it spits out the test results over Serial every 1 second.
+mocha has a main function that you can use to remove some boilerplate from your testing code.
 
 On the desktop platform, you can pass in command-line arguments/flags.
 
@@ -65,11 +63,6 @@ Requires C++11. Works on the following platforms:
 
  - Most desktop environments
  - Visual Studio
- - Arduino
-
-mocha uses a `string` type that is made to be compatible on many platforms(Arduino's `String` and normal desktop `std::string`). There should be no difference in dealing with `string`'s because it has implicit cast/conversions and operators to all the normal types. If you need some more compatibility, make an issue/pull request.
-
-
 
 # API
 

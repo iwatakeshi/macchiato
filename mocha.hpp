@@ -7,7 +7,6 @@
 // Requires C++11. Works on the following platforms:
 //		- Most desktop environments
 //		- Visual Studio
-//		- Arduino
 //
 // This is a no dependency/full independent version of mocha
 // We simply just concat the files together and remove the `#include *.h` to the h file dependencies
@@ -17,257 +16,7 @@
 // -----------------------------------------------------------------------------------------
 
 #include <to_string.hpp>
-
-#if defined(ARDUINO)
-#include "Arduino.h"
-#endif
-
-
-
-// By Luc Danton: http://chat.stackoverflow.com/transcript/message/21940188#21940188
-// http://coliru.stacked-crooked.com/a/015660099e486a80
-// Works as lambda<R, A, B, C> instead of std::function<R(A, B, C)>
-//
-// v0.2.0
-
-#ifndef LAMBDA_SIGNATURE_H
-#define LAMBDA_SIGNATURE_H
-
-#include <utility>
-#include <memory>
-
-template<typename R, typename... Args>
-struct holder_base {
-	virtual ~holder_base() = default;
-
-	virtual std::unique_ptr<holder_base> clone() const = 0;
-	virtual R call(Args... args) = 0;
-};
-
-template<typename Functor, typename R, typename... Args>
-struct holder: holder_base<R, Args...> {
-	explicit holder(Functor functor): functor(std::move(functor)) {}
-
-private:
-	Functor functor;
-
-public:
-	R call(Args... args) override { return functor(std::forward<Args>(args)...); }
-	std::unique_ptr<holder_base<R, Args...>> clone() const override
-	{ return std::unique_ptr<holder> { new holder(*this) }; }
-};
-
-template<typename Functor, typename... Args>
-struct holder<Functor, void, Args...>: holder_base<void, Args...> {
-	explicit holder(Functor functor): functor(std::move(functor)) {}
-
-private:
-	Functor functor;
-
-public:
-	void call(Args... args) override { functor(std::forward<Args>(args)...); }
-	std::unique_ptr<holder_base<void, Args...>> clone() const override
-	{ return std::unique_ptr<holder> { new holder(*this) }; }
-};
-
-template<typename R, typename... Args>
-struct lambda {
-	template<typename Functor>
-	lambda(Functor functor): functor(new holder<Functor, R, Args...>(std::move(functor))) {}
-
-	lambda(lambda const& other): functor(other.functor->clone()) {}
-	
-	lambda& operator=(lambda const& other) { functor = other.functor->clone(); return *this; }
-
-	lambda(lambda&& other) : functor { std::move(other.functor) }{}
-	
-	lambda& operator=(lambda&& other) {
-		functor = std::move(other.functor);
-
-		return *this;
-	}
-	//lambda(lambda&&) = default;
-	//lambda& operator=(lambda&&) = default;
-
-	R operator()(Args... args) { return functor->call(std::forward<Args>(args)...); }
-private:
-	std::unique_ptr<holder_base<R, Args...>> functor;
-};
-
-
-#endif
-
-
-
-// pstring
-// v0.3.1
-//
-// Requires C++11. Works on the following platforms:
-//		- Most desktop environments
-//		- Visual Studio
-//		- Arduino
-
-
-#ifndef PSTRING_H
-#define PSTRING_H
-
-
-#if defined(ARDUINO)
-#include "Arduino.h"
-
-struct pstring {
-	String value;
-
-	pstring() : pstring("") {};
-
-	pstring(char const* val) : pstring(String(val)) {};
-
-	pstring(String val): value(val) {};
-
-
-	pstring(bool val) : value(val ? "true" : "false") {};
-
-	pstring(int val): value(String(val)) {};
-	
-	pstring(unsigned int val): value(String(val)) {};
-
-	pstring(double val):pstring(val, 4) {};
-
-	pstring(double val, byte precision):value(pstring::float_to_string(val, precision)){};
-
-	pstring operator + (char const* s) {
-		return pstring(this->value + String(s));
-	};
-	
-	pstring operator + (const pstring &s) {
-		return pstring(this->value + s.value);
-	};
-
-	// For left hand side operator overloading
-	friend pstring operator + (char const* s, const pstring &ps) {
-		return pstring(String(s) + ps.value);
-	};
-
-	pstring& operator +=  (char const* s) {
-		this->value = this->value + String(s);
-		return *this;
-	};
-	
-	pstring& operator +=  (const pstring &s) {
-		this->value = this->value + s.value;
-		return *this;
-	};
-
-	operator String() { return this->value; }
-
-	private:
-		static String float_to_string(float val, byte precision) {
-			// returns val with number of decimal places determine by precision
-			// precision is a number from 0 to 6 indicating the desired decimial places
-			// example: floatToString(3.1415, 2); // returns 3.14 (two decimal places)
-
-			String output_ = "";
-
-			if(val < 0.0){
-				output_ += "-";
-				val = -val;
-			}
-
-			output_ += int(val);  //prints the int part
-			if(precision > 0)
-			{
-				output_ += "."; // print the decimal point
-
-				unsigned long frac;
-				unsigned long mult = 1;
-				byte padding = precision -1;
-				while(precision--)
-					mult *=10;
-
-				if(val >= 0)
-					frac = (val - int(val)) * mult;
-				else
-					frac = (int(val)- val ) * mult;
-				unsigned long frac1 = frac;
-
-				while( frac1 /= 10 )
-					padding--;
-				while(  padding--)
-					output_ += "0";
-
-				output_ += frac;
-			}
-
-			return output_;
-		};
-};
-
-
-#else
 #include <string>
-#include <iostream>
-// std::min, std::max
-#include <algorithm>
-
-struct pstring {
-	std::string value;
-
-	pstring() : pstring("") {};
-
-	pstring(char const* val) : pstring(std::string(val)) {};
-
-	pstring(std::string val) : value(val) {};
-
-	pstring(bool val) : value(val ? "true" : "false") {};
-
-	pstring(int val) : value(std::to_string(val)) {};
-
-	pstring(unsigned int val) : value(std::to_string(val)) {};
-
-	pstring(double val)
-		: value(remove_trailing_zero(std::to_string(val))) {};
-
-	pstring operator + (char const* s) {
-		return pstring(this->value + std::string(s));
-	};
-
-	pstring operator + (const pstring &s) {
-		return pstring(this->value + s.value);
-	};
-
-	// For left hand side operator overloading
-	friend pstring operator + (char const* s, const pstring &ps) {
-		return pstring(std::string(s) + ps.value);
-	};
-
-	pstring& operator += (char const* s) {
-		this->value = this->value + std::string(s);
-		return *this;
-	};
-	pstring& operator += (const pstring &s) {
-		this->value = this->value + s.value;
-		return *this;
-	};
-
-	friend std::ostream& operator << (std::ostream& stream, const pstring &s) {
-		return stream << s.value;
-	};
-
-	operator std::string() { return this->value; }
-
-	private:
-		static std::string remove_trailing_zero(std::string str) {
-			return str.erase((std::min)((int)str.find_last_not_of('0') + 2, (int)str.length()), std::string::npos);
-		};
-};
-
-#endif
-
-
-#endif
-
-
-
 
 // mocha
 // v0.6.5
@@ -278,28 +27,77 @@ struct pstring {
 // Requires C++11. Works on the following platforms:
 //		- Most desktop environments
 //		- Visual Studio
-//		- Arduino
 
 
 #ifndef MOCHA_H
 #define MOCHA_H
 
-#if defined(ARDUINO)
-#include "Arduino.h"
-#endif
-
 // fabs
 #include <cmath>
 
-//#include "lambdaSig.h"
-//#include "pstring.h"
-
 namespace mocha {
 
+	namespace helpers {
+		// Compare with int64_t
+		bool strict_equal (int64_t a, int64_t b) { return a == b; }
+		bool strict_equal(int64_t a, const char* b) { return false; };
+		bool strict_equal(int64_t a, double b) { return false; };
+		bool strict_equal(int64_t a, float b) { return false; };
+		bool strict_equal(int64_t a, char b) { return false; };
+		bool strict_equal(int64_t a, std::string b) { return false; };
+
+	  // Compare with doubles
+		bool strict_equal(double a, double b) { return a == b; };
+		bool strict_equal(double a, const char* b) { return false; };
+		bool strict_equal(double a, float b) { return false; };
+		bool strict_equal(double a, char b) { return false; };
+		bool strict_equal(double a, std::string b) { return false; };
+
+		// Compare with floats
+		bool strict_equal(float a, float b) { return a == b; };
+		bool strict_equal(float a, const char* b) { return false; };
+		bool strict_equal(float a, double b) { return false; };
+		bool strict_equal(float a, char b) { return false; };
+		bool strict_equal(float a, std::string b) { return false; };
+
+		// Compare with char
+		bool strict_equal(char a, char b) { return a == b; };
+		bool strict_equal(char a, const char* b) { return false; };
+		bool strict_equal(char a, double b) { return false; };
+		bool strict_equal(char a, float b) { return false; };
+		bool strict_equal(char a, std::string b) { return false; };
+
+		bool strict_equal(std::string a, std::string b) { return a.compare(b) == 0; };
+		bool strict_equal(std::string a, const char* b) { std::string s(b); return a == b; };
+		bool strict_equal(std::string a, double b) { return false; };
+		bool strict_equal(std::string a, float b) { return false; };
+		bool strict_equal(std::string a, char b) { return false; };
+
+		// Compare with bools
+		bool strict_equal(bool a, bool b) { return a == b; }		
+		bool strict_equal(bool a, const char* b) { return false; };
+		bool strict_equal(bool a, double b) { return false; }
+		bool strict_equal(bool a, float b) { return false; }
+		bool strict_equal(bool a, char b) { return false; }
+		bool strict_equal(bool a, std::string b) { return false; }
+
+		// Compare with const char*
+		bool strict_equal(const char* a, const char* b) {
+			std::string c(a);
+			std::string d(b);
+			return c.compare(b) == 0;
+		}
+		bool strict_equal(const char* a, bool b) { return false; };
+		bool strict_equal(const char* a, int64_t b) { return false; };
+		bool strict_equal(const char* a, double b) { return false; };
+		bool strict_equal(const char* a, float b) { return false; };
+		bool strict_equal(const char* a, char b) { return false; };
+
+	}
 
 	struct _mocha_settings {
 		bool use_color = true;
-		pstring indention = "\t";
+		std::string indention = "\t";
 	};
 
 	_mocha_settings mocha_settings;
@@ -315,8 +113,8 @@ namespace mocha {
 		};
 
 
-		pstring generate_current_depth_string() {
-			pstring depth_string = "";
+		std::string generate_current_depth_string() {
+			std::string depth_string = "";
 			for(unsigned int i = 0; i < depth_-1; i++) {
 				depth_string += mocha_settings.indention;
 			}
@@ -324,8 +122,8 @@ namespace mocha {
 			return depth_string;
 		};
 
-		pstring generate_current_child_depth_string() {
-			pstring child_depth_string = "";
+		std::string generate_current_child_depth_string() {
+			std::string child_depth_string = "";
 			for(unsigned int i = 0; i < depth_; i++) {
 				child_depth_string += mocha_settings.indention;
 			}
@@ -333,20 +131,20 @@ namespace mocha {
 			return child_depth_string;
 		};
 
-		pstring color_cyan(pstring input) {
-			return mocha_settings.use_color ? pstring("\033[36;1m" + input.value + "\033[0m") : input;
+		std::string color_cyan(std::string input) {
+			return mocha_settings.use_color ? std::string("\033[36;1m" + input + "\033[0m") : input;
 		};
 
-		pstring color_green(pstring input) {
-			return mocha_settings.use_color ? pstring("\033[32;1m" + input.value + "\033[0m") : input;
+		std::string color_green(std::string input) {
+			return mocha_settings.use_color ? std::string("\033[32;1m" + input + "\033[0m") : input;
 		};
-		pstring color_red(pstring input) {
-			return mocha_settings.use_color ? pstring("\033[31;1m" + input.value + "\033[0m") : input;
+		std::string color_red(std::string input) {
+			return mocha_settings.use_color ? std::string("\033[31;1m" + input + "\033[0m") : input;
 		};
 
 
 		// Just a helper to add to the resultant output_
-		void log(pstring message) {
+		void log(std::string message) {
 			output_ += message;
 		};
 
@@ -368,13 +166,13 @@ namespace mocha {
 			}
 		};
 
-		pstring output() {
-			pstring result = pstring(this->output_);
+		std::string output() {
+			std::string result = this->output_;
 			// Add a small summary at the end
-			result += pstring("\n\n") +
-				this->color_green(pstring(this->num_passed_) + " passing") + "\n" +
-				this->color_red(pstring(this->num_failed_) + " failing") + "\n" +
-				this->color_cyan(pstring(this->num_pending_) + " pending");
+			result += std::string("\n\n") +
+				this->color_green(utils::to_string(this->num_passed_) + " passing") + "\n" +
+				this->color_red(utils::to_string(this->num_failed_) + " failing") + "\n" +
+				this->color_cyan(utils::to_string(this->num_pending_) + " pending");
 
 
 			result += "\n";
@@ -393,7 +191,7 @@ namespace mocha {
 
 
 		private:
-			pstring output_ = "";
+			std::string output_ = "";
 
 			unsigned int depth_ = 0;
 
@@ -406,7 +204,7 @@ namespace mocha {
 
 	__mocha_util_class _mocha_util;
 
-	pstring output() {
+	std::string output() {
 		return _mocha_util.output();
 	};
 
@@ -415,13 +213,13 @@ namespace mocha {
 	};
 
 struct test_result {
-		pstring message;
+		std::string message;
 		bool did_pass = true;
 	
 		inline test_result operator+(const test_result& right) {
 			auto result = test_result();
 			result.did_pass = this->did_pass && right.did_pass;
-			result.message = this->message + pstring("\n") +
+			result.message = this->message + "\n" +
 			_mocha_util.generate_current_depth_string() + 
 			_mocha_util.generate_current_child_depth_string() + right.message;
 			return result;
@@ -430,7 +228,7 @@ struct test_result {
 		inline test_result operator &&(const test_result& right) {
 			auto result = test_result();
 			result.did_pass = this->did_pass && right.did_pass;
-			result.message = this->message + pstring("\n") +
+			result.message = this->message + "\n" +
 			_mocha_util.generate_current_depth_string() + 
 			_mocha_util.generate_current_child_depth_string() + right.message;
 			return result;
@@ -439,7 +237,7 @@ struct test_result {
 		inline test_result operator ||(const test_result& right) {
 			auto result = test_result();
 			result.did_pass = this->did_pass || right.did_pass;
-			result.message = this->message + pstring("\n") +
+			result.message = this->message + "\n" +
 			_mocha_util.generate_current_depth_string() + 
 			_mocha_util.generate_current_child_depth_string() + right.message;
 			return result;
@@ -453,57 +251,14 @@ struct test_result {
 
 	template <typename T, typename U = T>
 	struct mocha_plugin {
-		lambda<bool, T, U> lambda_test;
-		lambda<pstring, T, U, test_flags> lambda_fail;
+		std::function<bool (T, U)> lambda_test;
+		std::function<std::string (T, U, test_flags)> lambda_fail;
 
 		mocha_plugin(
-			lambda<bool, T, U> lambda_test,
-			lambda<pstring, T, U, test_flags> lambda_fail
+			std::function<bool (T, U)> lambda_test,
+			std::function<std::string (T, U, test_flags)> lambda_fail
 		) : lambda_test(lambda_test), lambda_fail(lambda_fail) { };
 	};
-
-	void describe(
-		pstring description,
-		lambda<void> lambda_describe
-	) {
-		// We just got to this depth_
-		_mocha_util.increment_depth();
-
-		// Log the current subject
-		_mocha_util.log(_mocha_util.generate_current_depth_string() + description + "\n");
-
-		// Run the describe and get the results
-		// They should of put some `it` calls inside the callback
-		lambda_describe();
-
-		// Now that we are done, reduce the depth_
-		_mocha_util.decrement_depth();
-	};
-
-	void it(pstring description) {
-		_mocha_util.log_result(_mocha_util.result_type::pending);
-
-		pstring message = _mocha_util.generate_current_child_depth_string() +
-			_mocha_util.color_cyan(pstring("----: ") + description) +
-			"\n";
-
-		_mocha_util.log(message);
-	};
-
-	void it(pstring description, lambda<mocha::test_result> lambda_it) {
-		mocha::test_result test_result = lambda_it();
-
-		_mocha_util.log_result(test_result.did_pass ? _mocha_util.result_type::pass : _mocha_util.result_type::fail);
-
-		pstring message = _mocha_util.generate_current_child_depth_string() +
-			(test_result.did_pass ? _mocha_util.color_green("pass") : _mocha_util.color_red("fail")) + ": " +
-			description +
-			(test_result.did_pass ? "" : "\n" + _mocha_util.generate_current_child_depth_string() + mocha_settings.indention + test_result.message) +
-			"\n";
-
-		_mocha_util.log(message);
-	};
-
 
 	// expect: BDD
 	template <typename T>
@@ -511,13 +266,25 @@ struct test_result {
 
 		expect_type(T actual) : actual(actual) { };
 
-
-
 		template <typename U>
 		expect_type* equal(U expected) {
+			bool result = helpers::strict_equal(this->actual, expected);
+
+			// std::cout << utils::to_string(is_c_str<decltype(this->actual)>::value) << ", "
+			// 		<< utils::to_string(is_c_str<decltype(expected)>::value) << std::endl;
+			
+			// bool is_actual_c_str = is_c_str<decltype(this->actual)>::value;
+			// bool is_expected_c_str = is_c_str<decltype(this->actual)>::value;
+
+			// if (is_actual_c_str && is_expected_c_str) {
+			// 	result = strict_equal(this->actual, expected);			
+			// } else if (!is_actual_c_str && !is_expected_c_str) {
+			// 	result == this->actual == expected;
+			// }
+
 			this->add_test_result(
-				this->actual == expected,
-				pstring("Expected ") + pstring(utils::to_string(this->actual)) + " to " + (this->flags.negate ? "not " : "") + "equal " + pstring(expected)
+				result,
+				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + utils::to_string(expected)
 			);
 
 			return this;
@@ -533,7 +300,7 @@ struct test_result {
 		expect_type* close_to(double expected, double tolerance) {
 			this->add_test_result(
 				fabs(this->actual - expected) <= tolerance,
-				pstring("Expected ") + pstring(utils::to_string(this->actual)) + " to " + (this->flags.negate ? "not " : "") + "equal " + pstring(expected) + " within tolerance of " + pstring(tolerance)
+				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + (utils::to_string(expected) + " within tolerance of " + utils::to_string(tolerance))
 			);
 
 			return this;
@@ -542,7 +309,7 @@ struct test_result {
 		expect_type* within(double lower, double upper) {
 			this->add_test_result(
 				this->actual > lower && this->actual < upper,
-				pstring("Expected ") + pstring(utils::to_string(this->actual)) + " to " + (this->flags.negate ? "not " : "") + "be above " + pstring(lower) + " and below " + pstring(upper)
+				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be above " + utils::to_string(lower) + " and below " + utils::to_string(upper)
 			);
 
 			return this;
@@ -552,7 +319,7 @@ struct test_result {
 		expect_type* above(double expected) {
 			this->add_test_result(
 				this->actual > expected,
-				pstring("Expected ") + pstring(utils::to_string(this->actual)) + " to " + (this->flags.negate ? "not " : "") + "be greater than " + pstring(expected)
+				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be greater than " + utils::to_string(expected)
 			);
 
 			return this;
@@ -567,7 +334,7 @@ struct test_result {
 		expect_type* least(double expected) {
 			this->add_test_result(
 				this->actual >= expected,
-				pstring("Expected ") + pstring(utils::to_string(this->actual)) + " to " + (this->flags.negate ? "not " : "") + "be greater than or equal to " + pstring(expected)
+				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be greater than or equal to " + utils::to_string(expected)
 			);
 
 			return this;
@@ -579,7 +346,7 @@ struct test_result {
 		expect_type* below(double expected) {
 			this->add_test_result(
 				this->actual < expected,
-				pstring("Expected ") + pstring(utils::to_string(this->actual)) + " to " + (this->flags.negate ? "not " : "") + "be lesser than " + pstring(expected)
+				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be lesser than " + utils::to_string(expected)
 			);
 
 			return this;
@@ -587,14 +354,14 @@ struct test_result {
 		expect_type* lt(double expected) {
 			return this->below(expected);
 		};
-		expect_type* lessThan(double expected) {
+		expect_type* less_than(double expected) {
 			return this->below(expected);
 		};
 
 		expect_type* most(double expected) {
 			this->add_test_result(
 				this->actual <= expected,
-				pstring("Expected ") + pstring(utils::to_string(this->actual)) + " to " + (this->flags.negate ? "not " : "") + "be less than or equal to " + pstring(expected)
+				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be less than or equal to " + utils::to_string(expected)
 			);
 
 			return this;
@@ -603,29 +370,29 @@ struct test_result {
 			return this->most(expected);
 		};
 
-		expect_type* satisfy(lambda<bool, T> lambda_test) {
+		expect_type* satisfy(std::function<bool (T)> lambda_test) {
 			bool result = lambda_test(this->actual);
 
 			return this->satisfy(
 				result,
-				pstring("Expected ") + pstring(utils::to_string(this->actual)) + " to " + (this->flags.negate ? "not " : "") + "satisfy the given test"
+				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "satisfy the given test"
 			);
 		};
-		expect_type* satisfy(lambda<bool, T> lambda_test, lambda<pstring, T, test_flags> lambda_fail) {
+		expect_type* satisfy(std::function<bool (T)> lambda_test, std::function<std::string (T, test_flags)> lambda_fail) {
 			bool result = lambda_test(this->actual);
-			pstring message = lambda_fail(this->actual, this->flags);
+			std::string message = lambda_fail(this->actual, this->flags);
 
 			return this->satisfy(result, message);
 		};
 		template <typename U>
 		expect_type* satisfy(mocha_plugin<T, U> plugin, U expected) {
 			bool result = plugin.lambda_test(this->actual, expected);
-			pstring message = plugin.lambda_fail(this->actual, expected, this->flags);
+			std::string message = plugin.lambda_fail(this->actual, expected, this->flags);
 
 			return this->satisfy(result, message);
 		};
 
-		expect_type* satisfy(bool result, pstring message) {
+		expect_type* satisfy(bool result, std::string message) {
 			this->add_test_result(
 				result,
 				message
@@ -634,14 +401,11 @@ struct test_result {
 			return this;
 		};
 
-
-
-
 		class member_logic {
 			expect_type* expect_pointer;
-			lambda<void, expect_type*> getter_lambda;
+			std::function<void (expect_type*)> getter_lambda;
 			public:
-				member_logic(expect_type *i, lambda<void, expect_type*> getter_lambda) : expect_pointer(i), getter_lambda(getter_lambda) {};
+				member_logic(expect_type *i, std::function<void (expect_type*)> getter_lambda) : expect_pointer(i), getter_lambda(getter_lambda) {};
 
 				// Setter
 				expect_type* operator = (const expect_type i) {
@@ -707,14 +471,14 @@ struct test_result {
 
 			test_result test_result;
 
-			void add_test_result(bool result, pstring message) {
+			void add_test_result(bool result, std::string message) {
 				bool did_pass = (this->flags.negate ? !result : result);
 
 				this->test_result.did_pass = this->test_result.did_pass && did_pass;
 
 				if(!did_pass) {
 					// Concat a newline if this is a consecutive test
-					if(this->test_result.message.value.length() > 0) {
+					if(this->test_result.message.length() > 0) {
 						this->test_result.message += "\n";
 					}
 					this->test_result.message += message;
@@ -726,6 +490,13 @@ struct test_result {
 				this->flags.negate = false;
 			};
 
+			template<class U>
+			struct is_c_str
+				: std::integral_constant<
+						bool,
+						std::is_same<char const *, typename std::decay<U>::type>::value ||
+						std::is_same<char *, typename std::decay<U>::type>::value
+			> {};
 
 		//private:
 	};
@@ -735,40 +506,64 @@ struct test_result {
 		return { std::forward<T>(x) };
 	};
 
+void describe(std::string description, std::function<void()> lambda_describe) {
+		// We just got to this depth_
+		_mocha_util.increment_depth();
 
+		// Log the current subject
+		_mocha_util.log(_mocha_util.generate_current_depth_string() + description + "\n");
+
+		// Run the describe and get the results
+		// They should of put some `it` calls inside the callback
+		lambda_describe();
+
+		// Now that we are done, reduce the depth_
+		_mocha_util.decrement_depth();
+	};
+
+	void it(std::string description) {
+		_mocha_util.log_result(_mocha_util.result_type::pending);
+
+		std::string message = _mocha_util.generate_current_child_depth_string() +
+			_mocha_util.color_cyan("----: " + description) +
+			"\n";
+
+		_mocha_util.log(message);
+	};
+
+	void it(std::string description, std::function<mocha::test_result()> lambda_it) {
+		mocha::test_result test_result = lambda_it();
+
+		_mocha_util.log_result(test_result.did_pass ? _mocha_util.result_type::pass : _mocha_util.result_type::fail);
+
+		std::string message = _mocha_util.generate_current_child_depth_string() +
+			(test_result.did_pass ? _mocha_util.color_green("pass") : _mocha_util.color_red("fail")) + ": " +
+			description +
+			(test_result.did_pass ? "" : "\n" + _mocha_util.generate_current_child_depth_string() + mocha_settings.indention + test_result.message) +
+			"\n";
+
+		_mocha_util.log(message);
+	};
+
+
+	using expect_type_lambda = mocha::expect_type<bool>*;
+	void it(std::string description, std::function<expect_type_lambda()> lambda_it) {
+		mocha::test_result test_result = lambda_it()->result();
+		it(description, [&] { return test_result; });
+	}
 
 	void parse_cli_args(int argc, char * const argv[]) {
 		// Some CLI options/flags
 		for(int i = 0; i < argc; i++) {
 			//std::cout << argv[i] << std::endl;
-			if(strcmp(argv[i], "--no-color") == 0) {
+			if(std::strcmp(argv[i], "--no-color") == 0) {
 				mocha::mocha_settings.use_color = false;
 			}
 		}
 	};
 }
 
-
-
 #include <vector>
-#if defined(ARDUINO)
-	// We just add a define in case anyone wants to detect it later to avoid multiple declaration errors
-	#ifndef std_vector_arduino_throw_polyfill
-	#define std_vector_arduino_throw_polyfill
-		// via https://forum.pjrc.com/threads/23467-Using-std-vector?p=69787&viewfull=1#post69787
-		namespace std {
-			inline void __throw_bad_alloc() {
-				Serial.println("Unable to allocate memory");
-			}
-
-			inline void __throw_length_error( char const*e ) {
-				Serial.print("Length Error :");
-				Serial.println(e);
-			}
-		}
-	#endif
-#endif
-
 
 // MOCHA_RUN_TESTS
 // --------------------------------------------
@@ -783,11 +578,11 @@ struct test_result {
 #define MOCHA_INTERNAL_UNIQUE_NAME( name ) MOCHA_INTERNAL_UNIQUE_NAME_LINE( name, __LINE__ )
 
 namespace mocha {
-	std::vector<lambda<void>> run_registry;
+	std::vector<std::function<void()>> run_registry;
 
 	void _run_all_registered_tests_from_macro() {
 		// Run all of the calls made in `MOCHA_RUN_TESTS([] { /* ... */ });
-		for(lambda<void> i : mocha::run_registry) {
+		for(std::function<void()> i : mocha::run_registry) {
 			i();
 		}
 	};
@@ -824,42 +619,20 @@ namespace mocha {
 // Define some runners if they want to go barebones
 #if defined(MOCHA_MAIN)
 
-	#if defined(ARDUINO)
+	#include <iostream>
+	#include <string>
 
-		// Keeps track since we last sent a serial in our debug serial
-		elapsedMicros sinceSerial;
+	// Standard C/C++ main entry point
+	int main (int argc, char * const argv[]) {
+		mocha::parse_cli_args(argc, argv);
 
-		void setup() {
-			Serial.begin(9600);
-		}
+		// The reset is only necessary if we were reptively runnin then outputting
+		//mocha::clear();
+		mocha::_run_all_registered_tests_from_macro();
+		std::cout << mocha::output() << std::endl;
 
-		void loop() {
-			// Print it out every 1 second
-			if (sinceSerial >= 1 * 1000000) {
-				mocha::clear();
-				mocha::_run_all_registered_tests_from_macro();
-				Serial.print(mocha::output().value);
-
-				sinceSerial = 0;
-			}
-		}
-	#else // defined(ARDUINO)
-		#include <iostream>
-		#include <string>
-
-
-		// Standard C/C++ main entry point
-		int main (int argc, char * const argv[]) {
-			mocha::parse_cli_args(argc, argv);
-
-			// The reset is only necessary if we were reptively runnin then outputting
-			//mocha::clear();
-			mocha::_run_all_registered_tests_from_macro();
-			std::cout << mocha::output() << std::endl;
-
-			return 0;
-		}
-	#endif // defined(ARDUINO)
+		return 0;
+	}
 
 #endif // defined(MOCHA_MAIN)
 
