@@ -6,6 +6,8 @@ prebuilt_cxx_library(
   header_namespace = '',
   exported_headers = [
     'mocha.hpp',
+    'include/string_utils.hpp',
+    'include/type_utils.hpp'
   ],
   licenses = [
     'LICENSE',
