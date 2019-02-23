@@ -11,7 +11,7 @@ mocha strives to be as close and familiar as [mocha](http://mochajs.org/)/[chai]
 
 ## Latest Version: ~0.6.5~
 
-# Usage
+## Usage
 
 To use this library, install [buckaroo](https://github.com/LoopPerfect/buckaroo/wiki/Installation#buckaroo) and [buck](https://github.com/LoopPerfect/buckaroo/wiki/Installation#buck). Once installed, [initialize](https://github.com/LoopPerfect/buckaroo/wiki/Commands#init) buckaroo in your project folder and run the following command:
 
