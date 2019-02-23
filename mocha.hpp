@@ -215,8 +215,23 @@ namespace mocha {
 		template <typename T>
 		bool is_typeof_string(T value) {
 			std::string s = utils::to_string(type_name<decltype(value)>());
+			std::cout << s << std::endl;
 			std::regex r("char \\[[0-9]+\\] const&");
-			return (s.find("char const*") >= 0 || std::regex_match(s, r)) && s.find("basic_string") >= 0;
+			std::cout << utils::to_string(s.find("char const*") >= 0) << " " <<
+			utils::to_string(std::regex_match(s, r)) << " " <<
+			utils::to_string(s.find("basic_string") >= 0) << std::endl;
+			return s.find("char const*") != std::string::npos || std::regex_match(s, r) || s.find("basic_string")!= std::string::npos;
+		}
+
+		template <typename T>
+		std::string quote_string(T value, bool quote_all = false) {
+			bool is_string = is_typeof_string(value);
+			std::string s = utils::to_string(value);
+			if (quote_all) {
+				return "\"" + s + "\"";
+			}
+
+			return is_string ? "\"" + s + "\"" : s;
 		}
 	}
 
@@ -415,39 +430,54 @@ struct test_result {
 		template <typename U>
 		expect_type* equal(U expected) {
 			bool result = helpers::equal(this->actual, expected);
-			bool is_string = (helpers::is_typeof_string(this->actual) && helpers::is_typeof_string(expected));
-
-			std::string actual_string = utils::to_string(this->actual);
-			std::string expected_string = utils::to_string(expected);
-			actual_string = is_string ? "\"" + actual_string + "\"" : actual_string;
-			expected_string = is_string ? "\"" + expected_string + "\"" : expected_string;
-
 			this->add_test_result(
 				result,
-				"Expected " + actual_string + " to " + (this->flags.negate ? "not " : "") + "equal " + expected_string
+				"Expected " + helpers::quote_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + helpers::quote_string(expected)
 			);
 
 			return this;
 		};
+
+		template <typename U>
+		expect_type* equal(U expected, std::function<bool(T a, U b)> comparator) {
+			bool result = comparator(this->actual, expected);
+			this->add_test_result(
+				result,
+				"Expected " + helpers::quote_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + helpers::quote_string(expected)
+			);
+
+			return this;
+		};
+
+
 		template <typename U>
 		expect_type* eql(U expected) {
 			return this->equal(expected);
 		};
 
 		template <typename U>
+		expect_type* eql(U expected, std::function<bool(T a, U b)> comparator) {
+			return this->equal(expected, comparator);
+		};
+
+		template <typename U>
 		expect_type* strict_equal(U expected) {
 			bool result = helpers::strict_equal(this->actual, expected);
 			// bool is_same_type = std::is_same<decltype(this->actual), decltype(expected)>::value;
-			bool is_string = (helpers::is_typeof_string(this->actual) && helpers::is_typeof_string(expected));
-
-			std::string actual_string = utils::to_string(this->actual);
-			std::string expected_string = utils::to_string(expected);
-			actual_string = is_string ? "\"" + actual_string + "\"" : actual_string;
-			expected_string = is_string ? "\"" + expected_string + "\"" : expected_string;
-
 			this->add_test_result(
 				result,
-				"Expected " + actual_string + " to " + (this->flags.negate ? "not " : "") + "equal " + expected_string
+				"Expected " + helpers::quote_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + helpers::quote_string(expected)
+			);
+
+			return this;
+		};
+
+		template <typename U>
+		expect_type* strict_equal(U expected, std::function<bool(T a, U b)> comparator) {
+			bool result = comparator(this->actual, expected);
+			this->add_test_result(
+				result,
+				"Expected " + helpers::quote_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + helpers::quote_string(expected)
 			);
 
 			return this;
@@ -456,6 +486,11 @@ struct test_result {
 		template <typename U>
 		expect_type* seql(U expected) {
 			return this->equal(expected);
+		};
+
+		template <typename U>
+		expect_type* seql(U expected, std::function<bool(T a, U b)> comparator) {
+			return this->equal(expected, comparator);
 		};
 
 		expect_type* close_to(double expected) {
