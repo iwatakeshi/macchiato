@@ -17,17 +17,43 @@
 
 #include <to_string.hpp>
 #include <string>
+#include <functional>
+#include <cstring>
+#include <iostream>
+#include <regex>
 
-// mocha
-// v0.6.5
-// https://github.com/MadLittleMods/mocha
-//
-// Mocha.js inspired testing for C++
-//
-// Requires C++11. Works on the following platforms:
-//		- Most desktop environments
-//		- Visual Studio
+// Credit: https://stackoverflow.com/a/53865723/1251031
+#ifndef _MSC_VER
+#   include <cxxabi.h>
+#endif
+#include <memory>
+#include <string>
+#include <cstdlib>
 
+template <class T>
+std::string
+type_name() {
+	typedef typename std::remove_reference<T>::type TR;
+  std::unique_ptr<char, void(*)(void*)> own
+           (
+#ifndef _MSC_VER
+  abi::__cxa_demangle(typeid(TR).name(), nullptr, nullptr, nullptr),
+#else
+  	nullptr,
+#endif
+	std::free
+);
+	std::string r = own != nullptr ? own.get() : typeid(TR).name();
+	if (std::is_const<TR>::value)
+		r += " const";
+	if (std::is_volatile<TR>::value)
+		r += " volatile";
+	if (std::is_lvalue_reference<T>::value)
+		r += "&";
+	else if (std::is_rvalue_reference<T>::value)
+		r += "&&";
+	return r;
+}
 
 #ifndef MOCHA_H
 #define MOCHA_H
@@ -186,6 +212,12 @@ namespace mocha {
 		bool equal(const char* a, float b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
 		bool equal(const char* a, char b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
 
+		template <typename T>
+		bool is_typeof_string(T value) {
+			std::string s = utils::to_string(type_name<decltype(value)>());
+			std::regex r("char \\[[0-9]+\\] const&");
+			return (s.find("char const*") >= 0 || std::regex_match(s, r)) && s.find("basic_string") >= 0;
+		}
 	}
 
 	struct _mocha_settings {
@@ -205,8 +237,7 @@ namespace mocha {
 			this->depth_ -= 1;
 		};
 
-
-		std::string generate_current_depth_string() {
+		std::string generate_parent_depth_string() {
 			std::string depth_string = "";
 			for(unsigned int i = 0; i < depth_-1; i++) {
 				depth_string += mocha_settings.indention;
@@ -215,7 +246,7 @@ namespace mocha {
 			return depth_string;
 		};
 
-		std::string generate_current_child_depth_string() {
+		std::string generate_child_depth_string() {
 			std::string child_depth_string = "";
 			for(unsigned int i = 0; i < depth_; i++) {
 				child_depth_string += mocha_settings.indention;
@@ -223,6 +254,11 @@ namespace mocha {
 
 			return child_depth_string;
 		};
+
+		std::string generate_depth_string() {
+			return generate_parent_depth_string() + 
+						 generate_child_depth_string();
+		}
 
 		std::string color_cyan(std::string input) {
 			return mocha_settings.use_color ? std::string("\033[36;1m" + input + "\033[0m") : input;
@@ -309,30 +345,47 @@ struct test_result {
 		std::string message;
 		bool did_pass = true;
 	
-		inline test_result operator+(const test_result& right) {
+		inline test_result operator + (const test_result& right) {
 			auto result = test_result();
+
 			result.did_pass = this->did_pass && right.did_pass;
-			result.message = this->message + "\n" +
-			_mocha_util.generate_current_depth_string() + 
-			_mocha_util.generate_current_child_depth_string() + right.message;
+			result.message = this->message + (
+				right.message.compare(_mocha_util.generate_depth_string()) == 0 ? 
+				"" : "\n" + _mocha_util.generate_depth_string() + right.message
+			);
 			return result;
 		}
 
-		inline test_result operator &&(const test_result& right) {
+		inline const test_result& operator = (const test_result& right) {
+			this->message = right.message;
+			this->did_pass = right.did_pass;
+			return *this;
+		}
+
+		inline test_result& operator += (const test_result& right) {
+			this->did_pass = this->did_pass && right.did_pass;
+			this->message += ("\n" + _mocha_util.generate_depth_string() + right.message);
+			return *this;
+		}
+
+		inline test_result operator && (const test_result& right) {
 			auto result = test_result();
 			result.did_pass = this->did_pass && right.did_pass;
-			result.message = this->message + "\n" +
-			_mocha_util.generate_current_depth_string() + 
-			_mocha_util.generate_current_child_depth_string() + right.message;
+			result.message = this->message + (
+				right.message.empty() ? "" : 
+				"\n" + 
+				_mocha_util.generate_parent_depth_string() + 
+				_mocha_util.generate_child_depth_string()
+			) + right.message;
 			return result;
 		}
 
-		inline test_result operator ||(const test_result& right) {
+		inline test_result operator || (const test_result& right) {
 			auto result = test_result();
 			result.did_pass = this->did_pass || right.did_pass;
 			result.message = this->message + "\n" +
-			_mocha_util.generate_current_depth_string() + 
-			_mocha_util.generate_current_child_depth_string() + right.message;
+			_mocha_util.generate_parent_depth_string() + 
+			_mocha_util.generate_child_depth_string() + right.message;
 			return result;
 		}
 	};
@@ -362,10 +415,16 @@ struct test_result {
 		template <typename U>
 		expect_type* equal(U expected) {
 			bool result = helpers::equal(this->actual, expected);
+			bool is_string = (helpers::is_typeof_string(this->actual) && helpers::is_typeof_string(expected));
+
+			std::string actual_string = utils::to_string(this->actual);
+			std::string expected_string = utils::to_string(expected);
+			actual_string = is_string ? "\"" + actual_string + "\"" : actual_string;
+			expected_string = is_string ? "\"" + expected_string + "\"" : expected_string;
 
 			this->add_test_result(
 				result,
-				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + utils::to_string(expected)
+				"Expected " + actual_string + " to " + (this->flags.negate ? "not " : "") + "equal " + expected_string
 			);
 
 			return this;
@@ -378,10 +437,17 @@ struct test_result {
 		template <typename U>
 		expect_type* strict_equal(U expected) {
 			bool result = helpers::strict_equal(this->actual, expected);
+			// bool is_same_type = std::is_same<decltype(this->actual), decltype(expected)>::value;
+			bool is_string = (helpers::is_typeof_string(this->actual) && helpers::is_typeof_string(expected));
+
+			std::string actual_string = utils::to_string(this->actual);
+			std::string expected_string = utils::to_string(expected);
+			actual_string = is_string ? "\"" + actual_string + "\"" : actual_string;
+			expected_string = is_string ? "\"" + expected_string + "\"" : expected_string;
 
 			this->add_test_result(
 				result,
-				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + utils::to_string(expected)
+				"Expected " + actual_string + " to " + (this->flags.negate ? "not " : "") + "equal " + expected_string
 			);
 
 			return this;
@@ -555,11 +621,11 @@ struct test_result {
 
 
 		test_result result() {
-			return this->test_result;
+			return result_;
 		};
 
 		operator bool() {
-			return this->test_result.did_pass;
+			return result_.did_pass;
 		};
 
 
@@ -567,23 +633,12 @@ struct test_result {
 			T actual;
 			test_flags flags;
 
-			test_result test_result;
+			test_result result_;
 
 			void add_test_result(bool result, std::string message) {
 				bool did_pass = (this->flags.negate ? !result : result);
-
-				this->test_result.did_pass = this->test_result.did_pass && did_pass;
-
-				if(!did_pass) {
-					// Concat a newline if this is a consecutive test
-					if(this->test_result.message.length() > 0) {
-						this->test_result.message += "\n";
-					}
-					this->test_result.message += message;
-				}
-
-
-
+				result_.did_pass = result_.did_pass && did_pass;
+				result_.message = did_pass ? _mocha_util.color_green(message) : _mocha_util.color_red(message);
 				// Reset the flag
 				this->flags.negate = false;
 			};
@@ -609,7 +664,7 @@ void describe(std::string description, std::function<void()> lambda_describe) {
 		_mocha_util.increment_depth();
 
 		// Log the current subject
-		_mocha_util.log(_mocha_util.generate_current_depth_string() + description + "\n");
+		_mocha_util.log(_mocha_util.generate_parent_depth_string() + description + "\n");
 
 		// Run the describe and get the results
 		// They should of put some `it` calls inside the callback
@@ -622,7 +677,7 @@ void describe(std::string description, std::function<void()> lambda_describe) {
 	void it(std::string description) {
 		_mocha_util.log_result(_mocha_util.result_type::pending);
 
-		std::string message = _mocha_util.generate_current_child_depth_string() +
+		std::string message = _mocha_util.generate_child_depth_string() +
 			_mocha_util.color_cyan("----: " + description) +
 			"\n";
 
@@ -630,25 +685,18 @@ void describe(std::string description, std::function<void()> lambda_describe) {
 	};
 
 	void it(std::string description, std::function<mocha::test_result()> lambda_it) {
-		mocha::test_result test_result = lambda_it();
 
+		mocha::test_result test_result = lambda_it();
 		_mocha_util.log_result(test_result.did_pass ? _mocha_util.result_type::pass : _mocha_util.result_type::fail);
 
-		std::string message = _mocha_util.generate_current_child_depth_string() +
-			(test_result.did_pass ? _mocha_util.color_green("pass") : _mocha_util.color_red("fail")) + ": " +
-			description +
-			(test_result.did_pass ? "" : "\n" + _mocha_util.generate_current_child_depth_string() + mocha_settings.indention + test_result.message) +
+		std::string message = _mocha_util.generate_child_depth_string() +
+			(test_result.did_pass ? _mocha_util.color_green("pass") : 
+			_mocha_util.color_red("fail")) + ": " + description +
+			(test_result.did_pass ? "" : "\n" + _mocha_util.generate_child_depth_string() + mocha_settings.indention + test_result.message) +
 			"\n";
 
 		_mocha_util.log(message);
 	};
-
-
-	using expect_type_lambda = mocha::expect_type<bool>*;
-	void it(std::string description, std::function<expect_type_lambda()> lambda_it) {
-		mocha::test_result test_result = lambda_it()->result();
-		it(description, [&] { return test_result; });
-	}
 
 	void parse_cli_args(int argc, char * const argv[]) {
 		// Some CLI options/flags
