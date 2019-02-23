@@ -13,9 +13,19 @@
 #include <string>
 #include <functional>
 #include <iostream>
-#include "include/string_utils.hpp"
 #include "include/type_utils.hpp"
 #include <cmath>
+// Extend the namespace utils (to_string.hpp)
+namespace utils {
+  std::string to_string(std::string s) {
+    return "\"" + s + "\"";
+  }
+
+  std::string to_string(const char* c_str) {
+    std::string s(c_str);
+    return "\"" + s + "\"";
+  }
+}
 
 namespace mocha {
 	struct _mocha_settings {
@@ -228,7 +238,7 @@ struct result_t {
 			bool result = comparator<T, T>().compare(this->actual, expected);
 			this->add_result_t(
 				result,
-				"Expected " + string_utils::quote_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + string_utils::quote_string(expected)
+				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + utils::to_string(expected)
 			);
 			return this;
 		};
@@ -249,7 +259,7 @@ struct result_t {
 			bool result = type_utils::equal(this->actual, expected);
 			this->add_result_t(
 				result,
-				"Expected " + string_utils::quote_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + string_utils::quote_string(expected)
+				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + utils::to_string(expected)
 			);
 			return this;
 		};
@@ -271,7 +281,7 @@ struct result_t {
 			bool result = comparator<T, U>().compare(this->actual, expected, lambda);
 			this->add_result_t(
 				result,
-				"Expected " + string_utils::quote_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + string_utils::quote_string(expected)
+				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + utils::to_string(expected)
 			);
 			return this;
 		};
@@ -292,7 +302,7 @@ struct result_t {
 			bool result = comparator<T, T>().compare(this->actual, expected);
 			this->add_result_t(
 				result,
-				"Expected " + string_utils::quote_string(this->actual) + " to strictly " + (this->flags.negate ? "not " : "") + "equal " + string_utils::quote_string(expected)
+				"Expected " + utils::to_string(this->actual) + " to strictly " + (this->flags.negate ? "not " : "") + "equal " + utils::to_string(expected)
 			);
 			return this;
 		};
@@ -314,7 +324,7 @@ struct result_t {
 			// bool is_same_type = std::is_same<decltype(this->actual), decltype(expected)>::value;
 			this->add_result_t(
 				result,
-				"Expected " + string_utils::quote_string(this->actual) + " to strictly " + (this->flags.negate ? "not " : "") + "equal " + string_utils::quote_string(expected)
+				"Expected " + utils::to_string(this->actual) + " to strictly " + (this->flags.negate ? "not " : "") + "equal " + utils::to_string(expected)
 			);
 			return this;
 		};
@@ -336,7 +346,7 @@ struct result_t {
 			bool result = comparator<T, U>().compare(this->actual, expected, lambda);
 			this->add_result_t(
 				result,
-				"Expected " + string_utils::quote_string(this->actual) + " to strictly" + (this->flags.negate ? "not " : "") + "equal " + string_utils::quote_string(expected)
+				"Expected " + utils::to_string(this->actual) + " to strictly" + (this->flags.negate ? "not " : "") + "equal " + utils::to_string(expected)
 			);
 
 			return this;
