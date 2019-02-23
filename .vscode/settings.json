@@ -54,6 +54,14 @@
     "utility": "cpp",
     "vector": "cpp",
     "__functional_base_03": "cpp",
-    "any": "cpp"
+    "any": "cpp",
+    "array": "cpp",
+    "*.tcc": "cpp",
+    "clocale": "cpp",
+    "unordered_map": "cpp",
+    "fstream": "cpp",
+    "optional": "cpp",
+    "deque": "cpp",
+    "variant": "cpp"
   }
 }

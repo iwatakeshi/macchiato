@@ -9,7 +9,7 @@ mocha strives to be as close and familiar as [mocha](http://mochajs.org/)/[chai]
 
 ![](http://i.imgur.com/fhGebYm.png)
 
-## Latest Version: 0.6.5
+## Latest Version: ~0.6.5~
 
 # Usage
 

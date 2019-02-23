@@ -1,236 +1,23 @@
 // mocha
-// v0.6.5
-// https://github.com/MadLittleMods/mocha
+// https://github.com/iwatakeshi/mocha
 //
 // Mocha.js inspired testing for C++
 //
 // Requires C++11. Works on the following platforms:
 //		- Most desktop environments
 //		- Visual Studio
-//
-// This is a no dependency/full independent version of mocha
-// We simply just concat the files together and remove the `#include *.h` to the h file dependencies
-
-// -----------------------------------------------------------------------------------------
-// -----------------------------------------------------------------------------------------
-// -----------------------------------------------------------------------------------------
+#ifndef MOCHA_H
+#define MOCHA_H
 
 #include <to_string.hpp>
 #include <string>
 #include <functional>
-#include <cstring>
 #include <iostream>
-#include <regex>
-
-// Credit: https://stackoverflow.com/a/53865723/1251031
-#ifndef _MSC_VER
-#   include <cxxabi.h>
-#endif
-#include <memory>
-#include <string>
-#include <cstdlib>
-
-template <class T>
-std::string
-type_name() {
-	typedef typename std::remove_reference<T>::type TR;
-  std::unique_ptr<char, void(*)(void*)> own
-           (
-#ifndef _MSC_VER
-  abi::__cxa_demangle(typeid(TR).name(), nullptr, nullptr, nullptr),
-#else
-  	nullptr,
-#endif
-	std::free
-);
-	std::string r = own != nullptr ? own.get() : typeid(TR).name();
-	if (std::is_const<TR>::value)
-		r += " const";
-	if (std::is_volatile<TR>::value)
-		r += " volatile";
-	if (std::is_lvalue_reference<T>::value)
-		r += "&";
-	else if (std::is_rvalue_reference<T>::value)
-		r += "&&";
-	return r;
-}
-
-#ifndef MOCHA_H
-#define MOCHA_H
-
-// fabs
+#include "include/string_utils.hpp"
+#include "include/type_utils.hpp"
 #include <cmath>
 
 namespace mocha {
-
-	namespace helpers {
-		// Compare with int
-		bool strict_equal(int a, int b) { return a == b; }
-		bool strict_equal(int a, int64_t b) { return false; }
-		bool strict_equal(int a, const char* b) { return false; };
-		bool strict_equal(int a, double b) { return false; };
-		bool strict_equal(int a, float b) { return false; };
-		bool strict_equal(int a, char b) { return false; };
-		bool strict_equal(int a, std::string b) { return false; };
-		// Compare with int64_t
-		bool strict_equal(int64_t a, int64_t b) { return a == b; }
-		bool strict_equal(int64_t a, int b) { return false; }
-		bool strict_equal(int64_t a, const char* b) { return false; };
-		bool strict_equal(int64_t a, double b) { return false; };
-		bool strict_equal(int64_t a, float b) { return false; };
-		bool strict_equal(int64_t a, char b) { return false; };
-		bool strict_equal(int64_t a, std::string b) { return false; };
-
-	  // Compare with doubles
-		bool strict_equal(double a, double b) { return a == b; };
-		bool strict_equal(double a, int64_t b) { return false; }
-		bool strict_equal(double a, int b) { return false; }
-		bool strict_equal(double a, const char* b) { return false; };
-		bool strict_equal(double a, float b) { return false; };
-		bool strict_equal(double a, char b) { return false; };
-		bool strict_equal(double a, std::string b) { return false; };
-
-		// Compare with floats
-		bool strict_equal(float a, float b) { return a == b; };
-		bool strict_equal(float a, int64_t b) { return false; }
-		bool strict_equal(float a, int b) { return false; }
-		bool strict_equal(float a, const char* b) { return false; };
-		bool strict_equal(float a, double b) { return false; };
-		bool strict_equal(float a, char b) { return false; };
-		bool strict_equal(float a, std::string b) { return false; };
-
-		// Compare with char
-		bool strict_equal(char a, char b) { return a == b; };
-		bool strict_equal(char a, int64_t b) { return false; }
-		bool strict_equal(char a, int b) { return false; }
-		bool strict_equal(char a, const char* b) { return false; };
-		bool strict_equal(char a, double b) { return false; };
-		bool strict_equal(char a, float b) { return false; };
-		bool strict_equal(char a, std::string b) { return false; };
-
-		bool strict_equal(std::string a, std::string b) { return a.compare(b) == 0; };
-		bool strict_equal(std::string a, const char* b) { std::string s(b); return a == b; };
-		bool strict_equal(std::string a, int64_t b) { return false; }
-		bool strict_equal(std::string a, int b) { return false; }
-		bool strict_equal(std::string a, double b) { return false; };
-		bool strict_equal(std::string a, float b) { return false; };
-		bool strict_equal(std::string a, char b) { return false; };
-
-		// Compare with bools
-		bool strict_equal(bool a, bool b) { return a == b; }		
-		bool strict_equal(bool a, int64_t b) { return false; }
-		bool strict_equal(bool a, int b) { return false; }
-		bool strict_equal(bool a, const char* b) { return false; };
-		bool strict_equal(bool a, double b) { return false; }
-		bool strict_equal(bool a, float b) { return false; }
-		bool strict_equal(bool a, char b) { return false; }
-		bool strict_equal(bool a, std::string b) { return false; }
-
-		// Compare with const char*
-		bool strict_equal(const char* a, const char* b) {
-			std::string c(a);
-			std::string d(b);
-			return c.compare(b) == 0;
-		}
-		bool strict_equal(const char* a, bool b) { return false; };
-		bool strict_equal(const char* a, int64_t b) { return false; };
-		bool strict_equal(const char* a, double b) { return false; };
-		bool strict_equal(const char* a, float b) { return false; };
-		bool strict_equal(const char* a, char b) { return false; };
-
-		// Compare with int
-		bool equal(int a, int b) { return a == b; }
-		bool equal(int a, int64_t b) { return a == b; }
-		bool equal(int a, const char* b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
-		bool equal(int a, double b) { return a == int(b); };
-		bool equal(int a, float b) { return a == int(b); };
-		bool equal(int a, char b) { return a == int(b); };
-		bool equal(int a, std::string b) { return a == std::stoi(b); };
-		// Compare with int64_t
-		bool equal(int64_t a, int64_t b) { return a == b; }
-		bool equal(int64_t a, int b) { return a == b; }
-		bool equal(int64_t a, const char* b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
-		bool equal(int64_t a, double b) { return a == int64_t(b); };
-		bool equal(int64_t a, float b) { return a == int64_t(b); };
-		bool equal(int64_t a, char b) { return a == int64_t(b); };
-		bool equal(int64_t a, std::string b) { return a == std::stoll(b); };
-
-	  // Compare with doubles
-		bool equal(double a, double b) { return a == b; };
-		bool equal(double a, int64_t b) { return a == double(b); }
-		bool equal(double a, int b) { return a == double(b); }
-		bool equal(double a, const char* b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
-		bool equal(double a, float b) { return a == double(b); };
-		bool equal(double a, char b) { return a == double(int(b)); };
-		bool equal(double a, std::string b) { return a == std::stod(b); };
-
-		// Compare with floats
-		bool equal(float a, float b) { return a == b; };
-		bool equal(float a, int64_t b) { return a == float(b); }
-		bool equal(float a, int b) { return a == float(b); }
-		bool equal(float a, const char* b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
-		bool equal(float a, double b) { return a == float(b); };
-		bool equal(float a, char b) { return a == float(int(b)); };
-		bool equal(float a, std::string b) { return a == std::stof(b); };
-
-		// Compare with char
-		bool equal(char a, char b) { return a == b; };
-		bool equal(char a, int64_t b) { return int64_t(a) == b; }
-		bool equal(char a, int b) { return int64_t(a) == b; }
-		bool equal(char a, const char* b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
-		bool equal(char a, double b) { return int64_t(a) == int64_t(b); };
-		bool equal(char a, float b) { return int64_t(a) == int64_t(b); };
-		bool equal(char a, std::string b) { return utils::to_string(a).compare(b) == 0; };
-
-		bool equal(std::string a, std::string b) { return a.compare(b) == 0; };
-		bool equal(std::string a, const char* b) { std::string s(b); return a == b; };
-		bool equal(std::string a, int64_t b) { return a.compare(utils::to_string(b)) == 0; }
-		bool equal(std::string a, int b) { return a.compare(utils::to_string(b)) == 0; }
-		bool equal(std::string a, double b) { return a.compare(utils::to_string(b)) == 0; };
-		bool equal(std::string a, float b) { return a.compare(utils::to_string(b)) == 0; };
-		bool equal(std::string a, char b) { return a.compare(utils::to_string(b)) == 0; };
-
-		// Compare with bools
-		bool equal(bool a, bool b) { return a == b; }		
-		bool equal(bool a, int64_t b) { return a == b; }
-		bool equal(bool a, int b) { return a == b; }
-		bool equal(bool a, const char* b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
-		bool equal(bool a, double b) { return a == int(b); }
-		bool equal(bool a, float b) { return a == int(b); }
-		bool equal(bool a, char b) { return a == int(b); }
-		bool equal(bool a, std::string b) { return utils::to_string(a).compare(b) == 0; }
-
-		// Compare with const char*
-		bool equal(const char* a, const char* b) {
-			std::string c(a);
-			std::string d(b);
-			return c.compare(b) == 0;
-		}
-		bool equal(const char* a, bool b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
-		bool equal(const char* a, int64_t b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
-		bool equal(const char* a, double b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
-		bool equal(const char* a, float b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
-		bool equal(const char* a, char b) { return utils::to_string(a).compare(utils::to_string(b)) == 0; };
-
-		template <typename T>
-		bool is_typeof_string(T value) {
-			std::string s = utils::to_string(type_name<decltype(value)>());
-			std::regex r("char \\[[0-9]+\\] const&");
-			return s.find("char const*") != std::string::npos || std::regex_match(s, r) || s.find("basic_string")!= std::string::npos;
-		}
-
-		template <typename T>
-		std::string quote_string(T value, bool quote_all = false) {
-			bool is_string = is_typeof_string(value);
-			std::string s = utils::to_string(value);
-			if (quote_all) {
-				return "\"" + s + "\"";
-			}
-
-			return is_string ? "\"" + s + "\"" : s;
-		}
-	}
-
 	struct _mocha_settings {
 		bool use_color = true;
 		std::string indention = "\t";
@@ -290,18 +77,18 @@ namespace mocha {
 
 
 		// Helper to increment the summary of tests
-		enum result_type {
+		enum result_state {
 			pass, fail, pending
 		};
 
-		void log_result(result_type type) {
-			if(type == result_type::pass) {
+		void log_result(result_state type) {
+			if(type == result_state::pass) {
 				this->num_passed_++;
 			}
-			else if(type == result_type::fail) {
+			else if(type == result_state::fail) {
 				this->num_failed_++;
 			}
-			else if(type == result_type::pending) {
+			else if(type == result_state::pending) {
 				this->num_pending_++;
 			}
 		};
@@ -322,19 +109,15 @@ namespace mocha {
 
 		void clear() {
 			this->output_ = "";
-
 			this->num_passed_ = 0;
 			this->num_failed_ = 0;
 			this->num_pending_ = 0;
 
 		};
 
-
 		private:
 			std::string output_ = "";
-
 			unsigned int depth_ = 0;
-
 			unsigned int num_passed_ = 0;
 			unsigned int num_failed_ = 0;
 			unsigned int num_pending_ = 0;
@@ -352,12 +135,12 @@ namespace mocha {
 		_mocha_util.clear();
 	};
 
-struct test_result {
+struct result_t {
 		std::string message;
 		bool did_pass = true;
 	
-		inline test_result operator + (const test_result& right) {
-			auto result = test_result();
+		inline result_t operator + (const result_t& right) {
+			auto result = result_t();
 
 			result.did_pass = this->did_pass && right.did_pass;
 			result.message = this->message + (
@@ -367,20 +150,20 @@ struct test_result {
 			return result;
 		}
 
-		inline const test_result& operator = (const test_result& right) {
+		inline const result_t& operator = (const result_t& right) {
 			this->message = right.message;
 			this->did_pass = right.did_pass;
 			return *this;
 		}
 
-		inline test_result& operator += (const test_result& right) {
+		inline result_t& operator += (const result_t& right) {
 			this->did_pass = this->did_pass && right.did_pass;
 			this->message += ("\n" + _mocha_util.generate_depth_string() + right.message);
 			return *this;
 		}
 
-		inline test_result operator && (const test_result& right) {
-			auto result = test_result();
+		inline result_t operator && (const result_t& right) {
+			auto result = result_t();
 			result.did_pass = this->did_pass && right.did_pass;
 			result.message = this->message + (
 				right.message.empty() ? "" : 
@@ -391,8 +174,8 @@ struct test_result {
 			return result;
 		}
 
-		inline test_result operator || (const test_result& right) {
-			auto result = test_result();
+		inline result_t operator || (const result_t& right) {
+			auto result = result_t();
 			result.did_pass = this->did_pass || right.did_pass;
 			result.message = this->message + "\n" +
 			_mocha_util.generate_parent_depth_string() + 
@@ -419,81 +202,161 @@ struct test_result {
 
 	// expect: BDD
 	template <typename T>
-	struct expect_type {
+	struct expect_t {
 
-		expect_type(T actual) : actual(actual) { };
+		expect_t(T actual) : actual(actual) { };
 
-		template <typename U>
-		expect_type* equal(U expected) {
-			bool result = helpers::equal(this->actual, expected);
-			this->add_test_result(
+		template <typename t_type, typename u_type>
+		struct comparator {
+			// https://stackoverflow.com/a/28085851
+			using A = typename std::conditional<std::is_fundamental<t_type>::value, t_type, t_type&>::type;
+			using B = typename std::conditional<std::is_fundamental<u_type>::value, u_type, u_type&>::type;
+			
+			bool compare(A actual, B expected) {
+				return actual == expected;
+			}
+
+			bool compare(A actual, B expected, std::function<bool(A a, B b)> lambda) {
+				return lambda(actual, expected);
+			}
+		};
+		
+		/**
+		 * Compares the actual and expected of the same type.
+		 */
+		expect_t* equal(T expected) {
+			bool result = comparator<T, T>().compare(this->actual, expected);
+			this->add_result_t(
 				result,
-				"Expected " + helpers::quote_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + helpers::quote_string(expected)
+				"Expected " + string_utils::quote_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + string_utils::quote_string(expected)
 			);
-
 			return this;
 		};
-
-		template <typename U>
-		expect_type* equal(U expected, std::function<bool(T a, U b)> comparator) {
-			bool result = comparator(this->actual, expected);
-			this->add_test_result(
-				result,
-				"Expected " + helpers::quote_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + helpers::quote_string(expected)
-			);
-
-			return this;
-		};
-
-
-		template <typename U>
-		expect_type* eql(U expected) {
+	
+		/**
+		 * [alias]
+		 * Compares the actual and expected of the same type.
+		 */
+		expect_t* eql(T expected) {
 			return this->equal(expected);
 		};
 
-		template <typename U>
-		expect_type* eql(U expected, std::function<bool(T a, U b)> comparator) {
-			return this->equal(expected, comparator);
+		/**
+		 * Compares the actual and expected of different types.
+		 */
+		template<typename U>
+		expect_t* equal(U expected) {
+			bool result = type_utils::equal(this->actual, expected);
+			this->add_result_t(
+				result,
+				"Expected " + string_utils::quote_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + string_utils::quote_string(expected)
+			);
+			return this;
 		};
 
+		/**
+		 * [alias]
+		 * Compares the actual and expected of different types.
+		 */
+		template <typename U>		
+		expect_t* eql(U expected) {
+			return this->equal(expected);
+		};
+
+		/**
+		 * Compares the actual and expected of different types using a custom comparator function.
+		 */
 		template <typename U>
-		expect_type* strict_equal(U expected) {
-			bool result = helpers::strict_equal(this->actual, expected);
+		expect_t* equal(U expected, std::function<bool(T a, U b)> lambda) {
+			bool result = comparator<T, U>().compare(this->actual, expected, lambda);
+			this->add_result_t(
+				result,
+				"Expected " + string_utils::quote_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + string_utils::quote_string(expected)
+			);
+			return this;
+		};
+
+		/**
+		 * [alias]
+		 * Compares the actual and expected of different types using a custom comparator function.
+		 */
+		template <typename U>
+		expect_t* eql(U expected, std::function<bool(T a, U b)> lambda) {
+			return this->equal(expected, lambda);
+		};
+
+		/**
+		 * Compares the actual and expected of the same type.
+		 */
+		expect_t* strict_equal(T expected) {
+			bool result = comparator<T, T>().compare(this->actual, expected);
+			this->add_result_t(
+				result,
+				"Expected " + string_utils::quote_string(this->actual) + " to strictly " + (this->flags.negate ? "not " : "") + "equal " + string_utils::quote_string(expected)
+			);
+			return this;
+		};
+
+		/**
+		 * [alias]
+		 * Compares the actual and expected of the same type.
+		 */
+		expect_t* seql(T expected) {
+			return this->equal(expected);
+		};
+
+		/**
+		 * Compares the actual and expected of different types.
+		 */
+		template <typename U>
+		expect_t* strict_equal(U expected) {
+			bool result = type_utils::strict_equal(this->actual, expected);
 			// bool is_same_type = std::is_same<decltype(this->actual), decltype(expected)>::value;
-			this->add_test_result(
+			this->add_result_t(
 				result,
-				"Expected " + helpers::quote_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + helpers::quote_string(expected)
+				"Expected " + string_utils::quote_string(this->actual) + " to strictly " + (this->flags.negate ? "not " : "") + "equal " + string_utils::quote_string(expected)
 			);
-
 			return this;
 		};
 
+		/**
+		 * [alias]
+		 * Compares the actual and expected of different types.
+		 */
 		template <typename U>
-		expect_type* strict_equal(U expected, std::function<bool(T a, U b)> comparator) {
-			bool result = comparator(this->actual, expected);
-			this->add_test_result(
-				result,
-				"Expected " + helpers::quote_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + helpers::quote_string(expected)
-			);
-
-			return this;
-		};
-
-		template <typename U>
-		expect_type* seql(U expected) {
+		expect_t* seql(U expected) {
 			return this->strict_equal(expected);
 		};
 
+		/**
+		 * Compares the actual and expected of different types using a custom comparator function.
+		 */
 		template <typename U>
-		expect_type* seql(U expected, std::function<bool(T a, U b)> comparator) {
-			return this->equal(expected, comparator);
+		expect_t* strict_equal(U expected, std::function<bool(T a, U b)> lambda) {
+			bool result = comparator<T, U>().compare(this->actual, expected, lambda);
+			this->add_result_t(
+				result,
+				"Expected " + string_utils::quote_string(this->actual) + " to strictly" + (this->flags.negate ? "not " : "") + "equal " + string_utils::quote_string(expected)
+			);
+
+			return this;
+		};
+		
+		/**
+		 * [alias]
+		 * Compares the actual and expected of different types using a custom comparator function.
+		 */
+		template <typename U>
+		expect_t* seql(U expected, std::function<bool(T a, U b)> lambda) {
+			return this->strict_equal(expected, lambda);
 		};
 
-		expect_type* close_to(double expected) {
+		expect_t* close_to(double expected) {
 			return this->close_to(expected, 0.0001);
 		};
-		expect_type* close_to(double expected, double tolerance) {
-			this->add_test_result(
+
+		expect_t* close_to(double expected, double tolerance) {
+			this->add_result_t(
 				fabs(this->actual - expected) <= tolerance,
 				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + (utils::to_string(expected) + " within tolerance of " + utils::to_string(tolerance))
 			);
@@ -501,8 +364,8 @@ struct test_result {
 			return this;
 		};
 
-		expect_type* within(double lower, double upper) {
-			this->add_test_result(
+		expect_t* within(double lower, double upper) {
+			this->add_result_t(
 				this->actual > lower && this->actual < upper,
 				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be above " + utils::to_string(lower) + " and below " + utils::to_string(upper)
 			);
@@ -511,61 +374,64 @@ struct test_result {
 		};
 
 
-		expect_type* above(double expected) {
-			this->add_test_result(
+		expect_t* above(double expected) {
+			this->add_result_t(
 				this->actual > expected,
 				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be greater than " + utils::to_string(expected)
 			);
 
 			return this;
 		};
-		expect_type* gt(double expected) {
+		expect_t* gt(double expected) {
 			return this->above(expected);
 		};
-		expect_type* greater_than(double expected) {
+		expect_t* greater_than(double expected) {
 			return this->above(expected);
 		};
 
-		expect_type* least(double expected) {
-			this->add_test_result(
+		expect_t* least(double expected) {
+			this->add_result_t(
 				this->actual >= expected,
 				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be greater than or equal to " + utils::to_string(expected)
 			);
 
 			return this;
 		};
-		expect_type* gte(double expected) {
+		expect_t* gte(double expected) {
 			return this->least(expected);
 		};
 
-		expect_type* below(double expected) {
-			this->add_test_result(
+		expect_t* below(double expected) {
+			this->add_result_t(
 				this->actual < expected,
 				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be lesser than " + utils::to_string(expected)
 			);
 
 			return this;
 		};
-		expect_type* lt(double expected) {
-			return this->below(expected);
-		};
-		expect_type* less_than(double expected) {
+
+		expect_t* lt(double expected) {
 			return this->below(expected);
 		};
 
-		expect_type* most(double expected) {
-			this->add_test_result(
+		expect_t* less_than(double expected) {
+			return this->below(expected);
+		};
+
+		expect_t* most(double expected) {
+			this->add_result_t(
 				this->actual <= expected,
 				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be less than or equal to " + utils::to_string(expected)
 			);
 
 			return this;
 		};
-		expect_type* lte(double expected) {
+
+		expect_t* lte(double expected) {
 			return this->most(expected);
 		};
 
-		expect_type* satisfy(std::function<bool (T)> lambda_test) {
+		expect_t* satisfy(std::function<bool (T)> lambda_test) {
 			bool result = lambda_test(this->actual);
 
 			return this->satisfy(
@@ -573,22 +439,24 @@ struct test_result {
 				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "satisfy the given test"
 			);
 		};
-		expect_type* satisfy(std::function<bool (T)> lambda_test, std::function<std::string (T, test_flags)> lambda_fail) {
+
+		expect_t* satisfy(std::function<bool (T)> lambda_test, std::function<std::string (T, test_flags)> lambda_fail) {
 			bool result = lambda_test(this->actual);
 			std::string message = lambda_fail(this->actual, this->flags);
 
 			return this->satisfy(result, message);
 		};
+
 		template <typename U>
-		expect_type* satisfy(mocha_plugin<T, U> plugin, U expected) {
+		expect_t* satisfy(mocha_plugin<T, U> plugin, U expected) {
 			bool result = plugin.lambda_test(this->actual, expected);
 			std::string message = plugin.lambda_fail(this->actual, expected, this->flags);
 
 			return this->satisfy(result, message);
 		};
 
-		expect_type* satisfy(bool result, std::string message) {
-			this->add_test_result(
+		expect_t* satisfy(bool result, std::string message) {
+			this->add_result_t(
 				result,
 				message
 			);
@@ -597,27 +465,30 @@ struct test_result {
 		};
 
 		class member_logic {
-			expect_type* expect_pointer;
-			std::function<void (expect_type*)> getter_lambda;
+			expect_t* expect_pointer;
+			std::function<void (expect_t*)> getter_lambda;
 			public:
-				member_logic(expect_type *i, std::function<void (expect_type*)> getter_lambda) : expect_pointer(i), getter_lambda(getter_lambda) {};
+				member_logic(expect_t *i, std::function<void (expect_t*)> getter_lambda) : expect_pointer(i), getter_lambda(getter_lambda) {};
 
 				// Setter
-				expect_type* operator = (const expect_type i) {
-					return this->expect_pointer = (expect_type*)&i;
+				expect_t* operator = (const expect_t i) {
+					return this->expect_pointer = (expect_t*)&i;
 
 				};
+				
 				// Setter
-				expect_type* operator = (const expect_type *i) {
-					return this->expect_pointer = (expect_type*)i;
+				expect_t* operator = (const expect_t *i) {
+					return this->expect_pointer = (expect_t*)i;
 				};
+				
 				// Getter
-				expect_type* operator -> () {
+				expect_t* operator -> () {
 					this->getter_lambda(this->expect_pointer);
 					return this->expect_pointer;
 				};
+
 				// Getter
-				operator expect_type* () const {
+				operator expect_t* () const {
 					this->getter_lambda(this->expect_pointer);
 					return this->expect_pointer;
 				};
@@ -626,7 +497,7 @@ struct test_result {
 
 		// Sets the negate flag when used
 		// expect<int>(3).to->never->equal->(5);
-		member_logic never{this, [&](expect_type* expect_pointer) {
+		member_logic never{this, [&](expect_t* expect_pointer) {
 			expect_pointer->flags.negate = !expect_pointer->flags.negate;
 		}};
 
@@ -634,24 +505,22 @@ struct test_result {
 
 		// Provided as chainable getters to improve the readability of your assertions.
 		// They do not provide testing capabilities.
-		expect_type* to = this;
-		expect_type* be = this;
-		expect_type* been = this;
-		expect_type* is = this;
-		expect_type* that = this;
-		expect_type* which = this;
+		expect_t* to = this;
+		expect_t* be = this;
+		expect_t* been = this;
+		expect_t* is = this;
+		expect_t* that = this;
+		expect_t* which = this;
 		// `and` is a reserved keyword
-		expect_type* then = this;//expect_type* and = this;
-		expect_type* has = this;
-		expect_type* have = this;
-		expect_type* with = this;
-		expect_type* at = this;
-		expect_type* of = this;
-		expect_type* same = this;
+		expect_t* then = this;//expect_t* and = this;
+		expect_t* has = this;
+		expect_t* have = this;
+		expect_t* with = this;
+		expect_t* at = this;
+		expect_t* of = this;
+		expect_t* same = this;
 
-
-
-		test_result result() {
+		result_t result() {
 			return result_;
 		};
 
@@ -659,14 +528,12 @@ struct test_result {
 			return result_.did_pass;
 		};
 
-
 		protected:
 			T actual;
 			test_flags flags;
+			result_t result_;
 
-			test_result result_;
-
-			void add_test_result(bool result, std::string message) {
+			void add_result_t(bool result, std::string message) {
 				bool did_pass = (this->flags.negate ? !result : result);
 				result_.did_pass = result_.did_pass && did_pass;
 				result_.message = did_pass ? _mocha_util.color_green(message) : _mocha_util.color_red(message);
@@ -686,7 +553,7 @@ struct test_result {
 	};
 
 	template <typename T>
-	expect_type<T> expect(T&& x) {
+	expect_t<T> expect(T&& x) {
 		return { std::forward<T>(x) };
 	};
 
@@ -706,7 +573,7 @@ void describe(std::string description, std::function<void()> lambda_describe) {
 	};
 
 	void it(std::string description) {
-		_mocha_util.log_result(_mocha_util.result_type::pending);
+		_mocha_util.log_result(_mocha_util.result_state::pending);
 
 		std::string message = _mocha_util.generate_child_depth_string() +
 			_mocha_util.color_cyan("----: " + description) +
@@ -715,15 +582,15 @@ void describe(std::string description, std::function<void()> lambda_describe) {
 		_mocha_util.log(message);
 	};
 
-	void it(std::string description, std::function<mocha::test_result()> lambda_it) {
+	void it(std::string description, std::function<mocha::result_t()> lambda_it) {
 
-		mocha::test_result test_result = lambda_it();
-		_mocha_util.log_result(test_result.did_pass ? _mocha_util.result_type::pass : _mocha_util.result_type::fail);
+		mocha::result_t result = lambda_it();
+		_mocha_util.log_result(result.did_pass ? _mocha_util.result_state::pass : _mocha_util.result_state::fail);
 
 		std::string message = _mocha_util.generate_child_depth_string() +
-			(test_result.did_pass ? _mocha_util.color_green("pass") : 
+			(result.did_pass ? _mocha_util.color_green("pass") : 
 			_mocha_util.color_red("fail")) + ": " + description +
-			(test_result.did_pass ? "" : "\n" + _mocha_util.generate_child_depth_string() + mocha_settings.indention + test_result.message) +
+			(result.did_pass ? "" : "\n" + _mocha_util.generate_child_depth_string() + mocha_settings.indention + result.message) +
 			"\n";
 
 		_mocha_util.log(message);
@@ -811,7 +678,5 @@ namespace mocha {
 	}
 
 #endif // defined(MOCHA_MAIN)
-
-
 
 #endif // MOCHA_H
