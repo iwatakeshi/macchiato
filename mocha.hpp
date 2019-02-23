@@ -216,9 +216,6 @@ namespace mocha {
 		bool is_typeof_string(T value) {
 			std::string s = utils::to_string(type_name<decltype(value)>());
 			std::regex r("char \\[[0-9]+\\] const&");
-			std::cout << utils::to_string(s.find("char const*") >= 0) << " " <<
-			utils::to_string(std::regex_match(s, r)) << " " <<
-			utils::to_string(s.find("basic_string") >= 0) << std::endl;
 			return s.find("char const*") != std::string::npos || std::regex_match(s, r) || s.find("basic_string")!= std::string::npos;
 		}
 
