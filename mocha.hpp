@@ -215,7 +215,6 @@ namespace mocha {
 		template <typename T>
 		bool is_typeof_string(T value) {
 			std::string s = utils::to_string(type_name<decltype(value)>());
-			std::cout << s << std::endl;
 			std::regex r("char \\[[0-9]+\\] const&");
 			std::cout << utils::to_string(s.find("char const*") >= 0) << " " <<
 			utils::to_string(std::regex_match(s, r)) << " " <<
@@ -485,7 +484,7 @@ struct test_result {
 
 		template <typename U>
 		expect_type* seql(U expected) {
-			return this->equal(expected);
+			return this->strict_equal(expected);
 		};
 
 		template <typename U>
@@ -736,7 +735,6 @@ void describe(std::string description, std::function<void()> lambda_describe) {
 	void parse_cli_args(int argc, char * const argv[]) {
 		// Some CLI options/flags
 		for(int i = 0; i < argc; i++) {
-			//std::cout << argv[i] << std::endl;
 			if(std::strcmp(argv[i], "--no-color") == 0) {
 				mocha::mocha_settings.use_color = false;
 			}
