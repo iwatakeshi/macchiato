@@ -12,7 +12,7 @@ int main() {
 
 			// This test will fail because it is false != true
 			it("should qux", [&]() {
-				return expect(false).to->equal(true)->result();
+				return expect("false").to->equal(true)->result();
 			});
 
 			// An `it` call without a callback is considered "pending"

@@ -62,6 +62,7 @@
     "fstream": "cpp",
     "optional": "cpp",
     "deque": "cpp",
-    "variant": "cpp"
+    "variant": "cpp",
+    "regex": "cpp"
   }
 }
