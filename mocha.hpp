@@ -9,6 +9,7 @@
 #ifndef MOCHA_H
 #define MOCHA_H
 #include <cmath>
+#include <cstring>
 #include <functional>
 #include <iostream>
 #include <string>
@@ -105,7 +106,7 @@ namespace mocha {
 		 * Compares the actual and expected of the same type.
 		 */
 		expect_t* strict_equal(T expected) {
-			bool result = mocha_comparator<T, U>().stric_equal(this->actual, expected);
+			bool result = mocha_comparator<T, T>().strict_equal(this->actual, expected);
 			this->add_result_t(
 				result,
 				"Expected " + to_string(this->actual) + " to strictly " + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
@@ -126,7 +127,7 @@ namespace mocha {
 		 */
 		template <typename U>
 		expect_t* strict_equal(U expected) {
-			bool result = mocha_comparator<T, U>().stric_equal(this->actual, expected);
+			bool result = mocha_comparator<T, U>().strict_equal(this->actual, expected);
 			// bool is_same_type = std::is_same<decltype(this->actual), decltype(expected)>::value;
 			this->add_result_t(
 				result,
@@ -149,7 +150,7 @@ namespace mocha {
 		 */
 		template <typename U>
 		expect_t* strict_equal(U expected, std::function<bool(T a, U b)> lambda) {
-			bool result = mocha_comparator<T, U>().stric_equal(this->actual, expected, lambda);
+			bool result = mocha_comparator<T, U>().strict_equal(this->actual, expected, lambda);
 			this->add_result_t(
 				result,
 				"Expected " + to_string(this->actual) + " to strictly" + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)

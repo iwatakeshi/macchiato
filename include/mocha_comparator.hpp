@@ -12,20 +12,17 @@ class mocha_comparator {
   using U = typename std::conditional<std::is_fundamental<u_type>::value, u_type, u_type&>::type;
 
 public:
-  mocha_comparator() {
-      
-      strict_equal = std::bind(strict_equal_);
-    }
+  mocha_comparator(): 
+  equal(([&](T a, U b) { return equal(a, b); })), 
+  strict_equal(([&](T a, U b) { return strict_equal(a, b); })) {}
   
   mocha_comparator(std::function<bool(T, U)> comparator): 
     equal(comparator), 
-    strict_equal(comparator);
+    strict_equal(comparator) {};
 
-  template<typename V, typename W>
-  std::function<bool(V, W)> equal;
+  std::function<bool(T, U)> equal;
+  std::function<bool(T, U)> strict_equal;
 
-  template<typename V, typename W>
-  std::function<bool(V, W)> strict_equal;
 
 private:
 // Compare with int
