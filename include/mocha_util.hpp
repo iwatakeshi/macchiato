@@ -73,7 +73,7 @@ namespace mocha {
 			}
 		};
 
-		std::string output() {
+		std::string summary() {
 			std::string result = this->output_;
 			// Add a small summary at the end
 			result += std::string("\n\n") +

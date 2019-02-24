@@ -24,13 +24,20 @@
 
 namespace mocha {
 
-	std::string output() {
-		return _mocha_util.output();
+	std::string summary() {
+		return _mocha_util.summary();
 	};
+
+	void print_summary() {
+		std::cout << summary() << std::endl;
+	}
 
 	void clear() {
 		_mocha_util.clear();
 	};
+
+	template <typename T, typename U>
+	using comparator_lambda = std::function<bool(T, U)>;
 
 	// expect: BDD
 	template <typename T>
@@ -84,8 +91,8 @@ namespace mocha {
 		 * Compares the actual and expected of different types using a custom comparator function.
 		 */
 		template <typename U>
-		expect_t* equal(U expected, std::function<bool(T a, U b)> lambda) {
-			bool result = mocha_comparator<T, U>().equal(this->actual, expected, lambda);
+		expect_t* equal(U expected, const mocha_comparator<T, U>& comparator) {
+			bool result = comparator.equal(this->actual, expected);
 			this->add_result_t(
 				result,
 				"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
@@ -98,8 +105,30 @@ namespace mocha {
 		 * Compares the actual and expected of different types using a custom comparator function.
 		 */
 		template <typename U>
-		expect_t* eql(U expected, std::function<bool(T a, U b)> lambda) {
-			return this->equal(expected, lambda);
+		expect_t* eql(U expected, const mocha_comparator<T, U>& comparator) {
+			return this->equal(expected, comparator);
+		};
+
+		/**
+		 * Compares the actual and expected of different types using a custom comparator function.
+		 */
+		template <typename U>
+		expect_t* equal(U expected, comparator_lambda<T, U> comparator) {
+			bool result = comparator(this->actual, expected);
+			this->add_result_t(
+				result,
+				"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
+			);
+			return this;
+		};
+
+		/**
+		 * [alias]
+		 * Compares the actual and expected of different types using a custom comparator function.
+		 */
+		template <typename U>
+		expect_t* eql(U expected, comparator_lambda<T, U> comparator) {
+			return this->equal(expected, comparator);
 		};
 
 		/**
@@ -149,8 +178,8 @@ namespace mocha {
 		 * Compares the actual and expected of different types using a custom comparator function.
 		 */
 		template <typename U>
-		expect_t* strict_equal(U expected, std::function<bool(T a, U b)> lambda) {
-			bool result = mocha_comparator<T, U>().strict_equal(this->actual, expected, lambda);
+		expect_t* strict_equal(U expected, const mocha_comparator<T, U>& comparator) {
+			bool result = comparator.strict_equal(this->actual, expected);
 			this->add_result_t(
 				result,
 				"Expected " + to_string(this->actual) + " to strictly" + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
@@ -158,14 +187,37 @@ namespace mocha {
 
 			return this;
 		};
-		
+
 		/**
 		 * [alias]
 		 * Compares the actual and expected of different types using a custom comparator function.
 		 */
 		template <typename U>
-		expect_t* seql(U expected, std::function<bool(T a, U b)> lambda) {
-			return this->strict_equal(expected, lambda);
+		expect_t* seql(U expected, const mocha_comparator<T, U>& comparator) {
+			return this->strict_equal(expected, comparator);
+		};
+
+		/**
+		 * Compares the actual and expected of different types using a custom comparator function.
+		 */
+		template <typename U>
+		expect_t* strict_equal(U expected, comparator_lambda<T, U> comparator) {
+			bool result = comparator(this->actual, expected);
+			this->add_result_t(
+				result,
+				"Expected " + to_string(this->actual) + " to strictly" + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
+			);
+
+			return this;
+		};		
+
+		/**
+		 * [alias]
+		 * Compares the actual and expected of different types using a custom comparator function.
+		 */
+		template <typename U>
+		expect_t* seql(U expected, comparator_lambda<T, U> comparator) {
+			return this->strict_equal(expected, comparator);
 		};
 
 		expect_t* close_to(double expected) {
@@ -264,7 +316,7 @@ namespace mocha {
 		};
 
 		template <typename U>
-		expect_t* satisfy(mocha_plugin<T, U> plugin, U expected) {
+		expect_t* satisfy(U expected, mocha_plugin<T, U> plugin) {
 			bool result = plugin.lambda_test(this->actual, expected);
 			std::string message = plugin.lambda_fail(this->actual, expected, this->flags);
 
@@ -487,7 +539,7 @@ namespace mocha {
 		// The reset is only necessary if we were reptively runnin then outputting
 		//mocha::clear();
 		mocha::_run_all_registered_tests_from_macro();
-		std::cout << mocha::output() << std::endl;
+		std::cout << mocha::summary() << std::endl;
 
 		return 0;
 	}
