@@ -73,17 +73,20 @@ Requires C++11. Works on the following platforms:
 # API
 
 | Test Functions | Description  |
-| `describe(string description, function<void> callback)`  | Describes the test suite and can be nested. |
-| `it(string description)` |  Describes a pending test case.  |
-| `it (string description, mocha_comparator<T, U> comparator)` | Describes a test case using a custom comparator. |
-| `it (string description, function<bool(T, U)> comparator)` | Describes a test case using a custom comparator function. |
+|----------------|--------------|
+| `describe(string description, function<void> callback)`       | Describes the test suite and can be nested. |
+| `it(string description)` |  Describes a pending test case.    |
+| `it (string description, mocha_comparator<T, U> comparator)` 	| Describes a test case using a custom comparator. |
+| `it (string description, function<bool(T, U)> comparator)` 		| Describes a test case using a custom comparator function. |
 
 | Helper Functions | Description |
-| `string mocha::summary()` | Returns a summary of the test.
+|------------------|-------------|
+| `string mocha::summary()` 			| Returns a summary of the test.
 | `string mocha::print_summary()` | Outputs a summary of the test.
-| `void mocha::clear()` | Clears the test output and resetes the test counts.
+| `void mocha::clear()` 					| Clears the test output and resetes the test counts.
 
 | Constructors | Description |
+|--------------|-------------|
 | `expect(T actual)` | Initializes an object of type `expect_t` that provides a [chainable](#BDD) API.
 
 ### Example
