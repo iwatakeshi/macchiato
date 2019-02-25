@@ -8,237 +8,51 @@
 //		- Visual Studio
 #ifndef MOCHA_H
 #define MOCHA_H
-
-#include <to_string.hpp>
-#include <string>
+#include <cmath>
+#include <cstring>
 #include <functional>
 #include <iostream>
-#include "include/type_utils.hpp"
-#include <cmath>
-// Extend the namespace utils (to_string.hpp)
-namespace utils {
-  std::string to_string(std::string s) {
-    return "\"" + s + "\"";
-  }
-
-  std::string to_string(const char* c_str) {
-    std::string s(c_str);
-    return "\"" + s + "\"";
-  }
-}
+#include <string>
+#include <to_string.hpp>
+#include <type_traits>
+#include "include/mocha_comparator.hpp"
+#include "include/mocha_plugin.hpp"
+#include "include/mocha_result.hpp"
+#include "include/mocha_test_flags.hpp"
+#include "include/mocha_settings.hpp"
+#include "include/mocha_util.hpp"
 
 namespace mocha {
-	struct _mocha_settings {
-		bool use_color = true;
-		std::string indention = "\t";
+
+	std::string summary() {
+		return _mocha_util.summary();
 	};
 
-	_mocha_settings mocha_settings;
-
-	struct __mocha_util_class {
-
-		void increment_depth() {
-			this->depth_ += 1;
-		};
-
-		void decrement_depth() {
-			this->depth_ -= 1;
-		};
-
-		std::string generate_parent_depth_string() {
-			std::string depth_string = "";
-			for(unsigned int i = 0; i < depth_-1; i++) {
-				depth_string += mocha_settings.indention;
-			}
-
-			return depth_string;
-		};
-
-		std::string generate_child_depth_string() {
-			std::string child_depth_string = "";
-			for(unsigned int i = 0; i < depth_; i++) {
-				child_depth_string += mocha_settings.indention;
-			}
-
-			return child_depth_string;
-		};
-
-		std::string generate_depth_string() {
-			return generate_parent_depth_string() + 
-						 generate_child_depth_string();
-		}
-
-		std::string color_cyan(std::string input) {
-			return mocha_settings.use_color ? std::string("\033[36;1m" + input + "\033[0m") : input;
-		};
-
-		std::string color_green(std::string input) {
-			return mocha_settings.use_color ? std::string("\033[32;1m" + input + "\033[0m") : input;
-		};
-		std::string color_red(std::string input) {
-			return mocha_settings.use_color ? std::string("\033[31;1m" + input + "\033[0m") : input;
-		};
-
-
-		// Just a helper to add to the resultant output_
-		void log(std::string message) {
-			output_ += message;
-		};
-
-
-		// Helper to increment the summary of tests
-		enum result_state {
-			pass, fail, pending
-		};
-
-		void log_result(result_state type) {
-			if(type == result_state::pass) {
-				this->num_passed_++;
-			}
-			else if(type == result_state::fail) {
-				this->num_failed_++;
-			}
-			else if(type == result_state::pending) {
-				this->num_pending_++;
-			}
-		};
-
-		std::string output() {
-			std::string result = this->output_;
-			// Add a small summary at the end
-			result += std::string("\n\n") +
-				this->color_green(utils::to_string(this->num_passed_) + " passing") + "\n" +
-				this->color_red(utils::to_string(this->num_failed_) + " failing") + "\n" +
-				this->color_cyan(utils::to_string(this->num_pending_) + " pending");
-
-
-			result += "\n";
-
-			return result;
-		};
-
-		void clear() {
-			this->output_ = "";
-			this->num_passed_ = 0;
-			this->num_failed_ = 0;
-			this->num_pending_ = 0;
-
-		};
-
-		private:
-			std::string output_ = "";
-			unsigned int depth_ = 0;
-			unsigned int num_passed_ = 0;
-			unsigned int num_failed_ = 0;
-			unsigned int num_pending_ = 0;
-
-
-	};
-
-	__mocha_util_class _mocha_util;
-
-	std::string output() {
-		return _mocha_util.output();
-	};
+	void print_summary() {
+		std::cout << summary() << std::endl;
+	}
 
 	void clear() {
 		_mocha_util.clear();
 	};
 
-struct result_t {
-		std::string message;
-		bool did_pass = true;
-	
-		inline result_t operator + (const result_t& right) {
-			auto result = result_t();
-
-			result.did_pass = this->did_pass && right.did_pass;
-			result.message = this->message + (
-				right.message.compare(_mocha_util.generate_depth_string()) == 0 ? 
-				"" : "\n" + _mocha_util.generate_depth_string() + right.message
-			);
-			return result;
-		}
-
-		inline const result_t& operator = (const result_t& right) {
-			this->message = right.message;
-			this->did_pass = right.did_pass;
-			return *this;
-		}
-
-		inline result_t& operator += (const result_t& right) {
-			this->did_pass = this->did_pass && right.did_pass;
-			this->message += ("\n" + _mocha_util.generate_depth_string() + right.message);
-			return *this;
-		}
-
-		inline result_t operator && (const result_t& right) {
-			auto result = result_t();
-			result.did_pass = this->did_pass && right.did_pass;
-			result.message = this->message + (
-				right.message.empty() ? "" : 
-				"\n" + 
-				_mocha_util.generate_parent_depth_string() + 
-				_mocha_util.generate_child_depth_string()
-			) + right.message;
-			return result;
-		}
-
-		inline result_t operator || (const result_t& right) {
-			auto result = result_t();
-			result.did_pass = this->did_pass || right.did_pass;
-			result.message = this->message + "\n" +
-			_mocha_util.generate_parent_depth_string() + 
-			_mocha_util.generate_child_depth_string() + right.message;
-			return result;
-		}
-	};
-
-	struct test_flags {
-		bool negate = false;
-	};
-
-
-	template <typename T, typename U = T>
-	struct mocha_plugin {
-		std::function<bool (T, U)> lambda_test;
-		std::function<std::string (T, U, test_flags)> lambda_fail;
-
-		mocha_plugin(
-			std::function<bool (T, U)> lambda_test,
-			std::function<std::string (T, U, test_flags)> lambda_fail
-		) : lambda_test(lambda_test), lambda_fail(lambda_fail) { };
-	};
+	template <typename T, typename U>
+	using comparator_lambda = std::function<bool(T, U)>;
 
 	// expect: BDD
 	template <typename T>
 	struct expect_t {
 
 		expect_t(T actual) : actual(actual) { };
-
-		template <typename t_type, typename u_type>
-		struct comparator {
-			// https://stackoverflow.com/a/28085851
-			using A = typename std::conditional<std::is_fundamental<t_type>::value, t_type, t_type&>::type;
-			using B = typename std::conditional<std::is_fundamental<u_type>::value, u_type, u_type&>::type;
-			
-			bool compare(A actual, B expected) {
-				return actual == expected;
-			}
-
-			bool compare(A actual, B expected, std::function<bool(A a, B b)> lambda) {
-				return lambda(actual, expected);
-			}
-		};
 		
 		/**
 		 * Compares the actual and expected of the same type.
 		 */
 		expect_t* equal(T expected) {
-			bool result = comparator<T, T>().compare(this->actual, expected);
+			bool result = mocha_comparator<T, T>().equal(this->actual, expected);
 			this->add_result_t(
 				result,
-				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + utils::to_string(expected)
+				"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
 			);
 			return this;
 		};
@@ -256,10 +70,10 @@ struct result_t {
 		 */
 		template<typename U>
 		expect_t* equal(U expected) {
-			bool result = type_utils::equal(this->actual, expected);
+			bool result = mocha_comparator<T, U>().equal(this->actual, expected);
 			this->add_result_t(
 				result,
-				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + utils::to_string(expected)
+				"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
 			);
 			return this;
 		};
@@ -277,11 +91,11 @@ struct result_t {
 		 * Compares the actual and expected of different types using a custom comparator function.
 		 */
 		template <typename U>
-		expect_t* equal(U expected, std::function<bool(T a, U b)> lambda) {
-			bool result = comparator<T, U>().compare(this->actual, expected, lambda);
+		expect_t* equal(U expected, const mocha_comparator<T, U>& comparator) {
+			bool result = comparator.equal(this->actual, expected);
 			this->add_result_t(
 				result,
-				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + utils::to_string(expected)
+				"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
 			);
 			return this;
 		};
@@ -291,18 +105,40 @@ struct result_t {
 		 * Compares the actual and expected of different types using a custom comparator function.
 		 */
 		template <typename U>
-		expect_t* eql(U expected, std::function<bool(T a, U b)> lambda) {
-			return this->equal(expected, lambda);
+		expect_t* eql(U expected, const mocha_comparator<T, U>& comparator) {
+			return this->equal(expected, comparator);
+		};
+
+		/**
+		 * Compares the actual and expected of different types using a custom comparator function.
+		 */
+		template <typename U>
+		expect_t* equal(U expected, comparator_lambda<T, U> comparator) {
+			bool result = comparator(this->actual, expected);
+			this->add_result_t(
+				result,
+				"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
+			);
+			return this;
+		};
+
+		/**
+		 * [alias]
+		 * Compares the actual and expected of different types using a custom comparator function.
+		 */
+		template <typename U>
+		expect_t* eql(U expected, comparator_lambda<T, U> comparator) {
+			return this->equal(expected, comparator);
 		};
 
 		/**
 		 * Compares the actual and expected of the same type.
 		 */
 		expect_t* strict_equal(T expected) {
-			bool result = comparator<T, T>().compare(this->actual, expected);
+			bool result = mocha_comparator<T, T>().strict_equal(this->actual, expected);
 			this->add_result_t(
 				result,
-				"Expected " + utils::to_string(this->actual) + " to strictly " + (this->flags.negate ? "not " : "") + "equal " + utils::to_string(expected)
+				"Expected " + to_string(this->actual) + " to strictly " + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
 			);
 			return this;
 		};
@@ -320,11 +156,11 @@ struct result_t {
 		 */
 		template <typename U>
 		expect_t* strict_equal(U expected) {
-			bool result = type_utils::strict_equal(this->actual, expected);
+			bool result = mocha_comparator<T, U>().strict_equal(this->actual, expected);
 			// bool is_same_type = std::is_same<decltype(this->actual), decltype(expected)>::value;
 			this->add_result_t(
 				result,
-				"Expected " + utils::to_string(this->actual) + " to strictly " + (this->flags.negate ? "not " : "") + "equal " + utils::to_string(expected)
+				"Expected " + to_string(this->actual) + " to strictly " + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
 			);
 			return this;
 		};
@@ -342,23 +178,46 @@ struct result_t {
 		 * Compares the actual and expected of different types using a custom comparator function.
 		 */
 		template <typename U>
-		expect_t* strict_equal(U expected, std::function<bool(T a, U b)> lambda) {
-			bool result = comparator<T, U>().compare(this->actual, expected, lambda);
+		expect_t* strict_equal(U expected, const mocha_comparator<T, U>& comparator) {
+			bool result = comparator.strict_equal(this->actual, expected);
 			this->add_result_t(
 				result,
-				"Expected " + utils::to_string(this->actual) + " to strictly" + (this->flags.negate ? "not " : "") + "equal " + utils::to_string(expected)
+				"Expected " + to_string(this->actual) + " to strictly" + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
 			);
 
 			return this;
 		};
-		
+
 		/**
 		 * [alias]
 		 * Compares the actual and expected of different types using a custom comparator function.
 		 */
 		template <typename U>
-		expect_t* seql(U expected, std::function<bool(T a, U b)> lambda) {
-			return this->strict_equal(expected, lambda);
+		expect_t* seql(U expected, const mocha_comparator<T, U>& comparator) {
+			return this->strict_equal(expected, comparator);
+		};
+
+		/**
+		 * Compares the actual and expected of different types using a custom comparator function.
+		 */
+		template <typename U>
+		expect_t* strict_equal(U expected, comparator_lambda<T, U> comparator) {
+			bool result = comparator(this->actual, expected);
+			this->add_result_t(
+				result,
+				"Expected " + to_string(this->actual) + " to strictly" + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
+			);
+
+			return this;
+		};		
+
+		/**
+		 * [alias]
+		 * Compares the actual and expected of different types using a custom comparator function.
+		 */
+		template <typename U>
+		expect_t* seql(U expected, comparator_lambda<T, U> comparator) {
+			return this->strict_equal(expected, comparator);
 		};
 
 		expect_t* close_to(double expected) {
@@ -368,7 +227,7 @@ struct result_t {
 		expect_t* close_to(double expected, double tolerance) {
 			this->add_result_t(
 				fabs(this->actual - expected) <= tolerance,
-				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + (utils::to_string(expected) + " within tolerance of " + utils::to_string(tolerance))
+				"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + (to_string(expected) + " within tolerance of " + to_string(tolerance))
 			);
 
 			return this;
@@ -377,7 +236,7 @@ struct result_t {
 		expect_t* within(double lower, double upper) {
 			this->add_result_t(
 				this->actual > lower && this->actual < upper,
-				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be above " + utils::to_string(lower) + " and below " + utils::to_string(upper)
+				"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be above " + to_string(lower) + " and below " + to_string(upper)
 			);
 
 			return this;
@@ -387,7 +246,7 @@ struct result_t {
 		expect_t* above(double expected) {
 			this->add_result_t(
 				this->actual > expected,
-				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be greater than " + utils::to_string(expected)
+				"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be greater than " + to_string(expected)
 			);
 
 			return this;
@@ -402,7 +261,7 @@ struct result_t {
 		expect_t* least(double expected) {
 			this->add_result_t(
 				this->actual >= expected,
-				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be greater than or equal to " + utils::to_string(expected)
+				"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be greater than or equal to " + to_string(expected)
 			);
 
 			return this;
@@ -414,7 +273,7 @@ struct result_t {
 		expect_t* below(double expected) {
 			this->add_result_t(
 				this->actual < expected,
-				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be lesser than " + utils::to_string(expected)
+				"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be lesser than " + to_string(expected)
 			);
 
 			return this;
@@ -431,7 +290,7 @@ struct result_t {
 		expect_t* most(double expected) {
 			this->add_result_t(
 				this->actual <= expected,
-				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be less than or equal to " + utils::to_string(expected)
+				"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be less than or equal to " + to_string(expected)
 			);
 
 			return this;
@@ -443,10 +302,9 @@ struct result_t {
 
 		expect_t* satisfy(std::function<bool (T)> lambda_test) {
 			bool result = lambda_test(this->actual);
-
 			return this->satisfy(
 				result,
-				"Expected " + utils::to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "satisfy the given test"
+				"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "satisfy the given test"
 			);
 		};
 
@@ -458,7 +316,7 @@ struct result_t {
 		};
 
 		template <typename U>
-		expect_t* satisfy(mocha_plugin<T, U> plugin, U expected) {
+		expect_t* satisfy(U expected, mocha_plugin<T, U> plugin) {
 			bool result = plugin.lambda_test(this->actual, expected);
 			std::string message = plugin.lambda_fail(this->actual, expected, this->flags);
 
@@ -552,14 +410,18 @@ struct result_t {
 			};
 
 			template<class U>
-			struct is_c_str
+			struct is_string
 				: std::integral_constant<
 						bool,
 						std::is_same<char const *, typename std::decay<U>::type>::value ||
-						std::is_same<char *, typename std::decay<U>::type>::value
+						std::is_same<char *, typename std::decay<U>::type>::value ||
+						std::is_same<std::string, typename std::decay<U>::type>::value
 			> {};
 
-		//private:
+			template<typename U>
+			std::string to_string(U value) {
+				return is_string<decltype(value)>::value ? "\"" + utils::to_string(value) + "\"" : utils::to_string(value);
+			}
 	};
 
 	template <typename T>
@@ -592,16 +454,13 @@ void describe(std::string description, std::function<void()> lambda_describe) {
 		_mocha_util.log(message);
 	};
 
-	void it(std::string description, std::function<mocha::result_t()> lambda_it) {
+	void it(std::string description, std::function<result_t()> lambda_it) {
 
-		mocha::result_t result = lambda_it();
+		result_t result = lambda_it();
 		_mocha_util.log_result(result.did_pass ? _mocha_util.result_state::pass : _mocha_util.result_state::fail);
 
-		std::string message = _mocha_util.generate_child_depth_string() +
-			(result.did_pass ? _mocha_util.color_green("pass") : 
-			_mocha_util.color_red("fail")) + ": " + description +
-			(result.did_pass ? "" : "\n" + _mocha_util.generate_child_depth_string() + mocha_settings.indention + result.message) +
-			"\n";
+		std::string message = _mocha_util.generate_child_depth_string() + (result.did_pass ? _mocha_util.color_green("pass") :  _mocha_util.color_red("fail")) + ": " + description +
+			(result.did_pass ? "" : "\n" + _mocha_util.generate_child_depth_string() + mocha_settings.indention + result.message) + "\n";
 
 		_mocha_util.log(message);
 	};
@@ -667,8 +526,6 @@ namespace mocha {
 // --------------------------------------------
 // --------------------------------------------
 
-
-
 // Define some runners if they want to go barebones
 #if defined(MOCHA_MAIN)
 
@@ -682,11 +539,10 @@ namespace mocha {
 		// The reset is only necessary if we were reptively runnin then outputting
 		//mocha::clear();
 		mocha::_run_all_registered_tests_from_macro();
-		std::cout << mocha::output() << std::endl;
+		std::cout << mocha::summary() << std::endl;
 
 		return 0;
 	}
 
 #endif // defined(MOCHA_MAIN)
-
-#endif // MOCHA_H
+#endif
