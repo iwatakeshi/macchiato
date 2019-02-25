@@ -240,7 +240,7 @@ int main (int argc, char * const argv[]) {
   // Do some tests... describe(...) { it(...) {}; };
 
   // Output the test results
-  std::cout << mocha::output() << std::endl;
+  mocha::print_summary();
 };
 ```
 
