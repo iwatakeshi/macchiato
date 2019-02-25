@@ -56,7 +56,7 @@ template <typename T>
 struct expect_t {
 	expect_t(T actual) : actual(actual) { };
 	
-  /**
+	/**
 	 * Compares the actual and expected of the same type.
    */ 
   expect_t* equal(const char* expected) {
@@ -141,6 +141,111 @@ struct expect_t {
 	};
 
 	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* equal(bool expected, comparator_lambda<T, bool> comparator) {
+    return this->equal<bool>(expected, comparator);
+  }
+
+  /**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* equal(short int expected, comparator_lambda<T, short int> comparator) {
+    return this->equal<short int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* equal(unsigned short int expected, comparator_lambda<T, unsigned short int> comparator) {
+    return this->equal<unsigned short int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* equal(unsigned int expected, comparator_lambda<T, unsigned int> comparator) {
+    return this->equal<unsigned int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* equal(int expected, comparator_lambda<T, int> comparator) {
+    return this->equal<int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* equal(unsigned long int expected, comparator_lambda<T, unsigned long int> comparator) {
+    return this->equal<unsigned long int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* equal(long long int expected, comparator_lambda<T, long long int> comparator) {
+    return this->equal<long long int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* equal(unsigned long long int expected, comparator_lambda<T, unsigned long long int> comparator) {
+    return this->equal<unsigned long long int>(expected, comparator);
+  }
+	
+  /**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* equal(unsigned char expected, comparator_lambda<T, unsigned char> comparator) {
+    return this->equal<unsigned char>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* equal(char expected, comparator_lambda<T, char> comparator) {
+    return this->equal<char>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* equal(float expected, comparator_lambda<T, float> comparator) {
+    return this->equal<float>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* equal(long double expected, comparator_lambda<T, long double> comparator) {
+    return this->equal<long double>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* equal(wchar_t expected, comparator_lambda<T, wchar_t> comparator) {
+    return this->equal<wchar_t>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* equal(const char* expected, comparator_lambda<T, const char*> comparator) {
+    return this->equal<const char*>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* equal(const std::string& expected, comparator_lambda<T, const std::string&> comparator) {
+    return this->equal<const std::string&>(expected, comparator);
+  }
+
+	/**
 	 * [alias]
 	 * Compares the actual and expected of different types using a custom comparator function.
 	 */
@@ -148,6 +253,111 @@ struct expect_t {
 	expect_t* eql(U expected, comparator_lambda<T, U> comparator) {
 		return this->equal(expected, comparator);
 	};
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* eql(bool expected, comparator_lambda<T, bool> comparator) {
+    return this->eql<bool>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* eql(short int expected, comparator_lambda<T, short int> comparator) {
+    return this->eql<short int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* eql(unsigned short int expected, comparator_lambda<T, unsigned short int> comparator) {
+    return this->eql<unsigned short int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* eql(unsigned int expected, comparator_lambda<T, unsigned int> comparator) {
+    return this->eql<unsigned int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* eql(int expected, comparator_lambda<T, int> comparator) {
+    return this->eql<int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* eql(unsigned long int expected, comparator_lambda<T, unsigned long int> comparator) {
+    return this->eql<unsigned long int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* eql(long long int expected, comparator_lambda<T, long long int> comparator) {
+    return this->eql<long long int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* eql(unsigned long long int expected, comparator_lambda<T, unsigned long long int> comparator) {
+    return this->eql<unsigned long long int>(expected, comparator);
+  }
+	
+  /**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* eql(unsigned char expected, comparator_lambda<T, unsigned char> comparator) {
+    return this->eql<unsigned char>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* eql(char expected, comparator_lambda<T, char> comparator) {
+    return this->eql<char>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* eql(float expected, comparator_lambda<T, float> comparator) {
+    return this->eql<float>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* eql(long double expected, comparator_lambda<T, long double> comparator) {
+    return this->eql<long double>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* eql(wchar_t expected, comparator_lambda<T, wchar_t> comparator) {
+    return this->eql<wchar_t>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* eql(const char* expected, comparator_lambda<T, const char*> comparator) {
+    return this->eql<const char*>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* eql(const std::string& expected, comparator_lambda<T, const std::string&> comparator) {
+    return this->eql<const std::string&>(expected, comparator);
+  }
 
 	/**
 	 * Compares the actual and expected of the same type.
@@ -172,7 +382,6 @@ struct expect_t {
   /**
 	 * Compares the actual and expected of different types.
 	 */
-	template <typename U>
 	expect_t* strict_equal(const char* expected) {
     return this->strict_equal<std::string>(std::string(expected));
   }
@@ -238,6 +447,111 @@ struct expect_t {
 	};		
 
 	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* strict_equal(bool expected, comparator_lambda<T, bool> comparator) {
+    return this->strict_equal<bool>(expected, comparator);
+  }
+
+  /**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* strict_equal(short int expected, comparator_lambda<T, short int> comparator) {
+    return this->strict_equal<short int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* strict_equal(unsigned short int expected, comparator_lambda<T, unsigned short int> comparator) {
+    return this->strict_equal<unsigned short int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* strict_equal(unsigned int expected, comparator_lambda<T, unsigned int> comparator) {
+    return this->strict_equal<unsigned int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* strict_equal(int expected, comparator_lambda<T, int> comparator) {
+    return this->strict_equal<int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* strict_equal(unsigned long int expected, comparator_lambda<T, unsigned long int> comparator) {
+    return this->strict_equal<unsigned long int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* strict_equal(long long int expected, comparator_lambda<T, long long int> comparator) {
+    return this->strict_equal<long long int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* strict_equal(unsigned long long int expected, comparator_lambda<T, unsigned long long int> comparator) {
+    return this->strict_equal<unsigned long long int>(expected, comparator);
+  }
+	
+  /**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* strict_equal(unsigned char expected, comparator_lambda<T, unsigned char> comparator) {
+    return this->strict_equal<unsigned char>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* strict_equal(char expected, comparator_lambda<T, char> comparator) {
+    return this->strict_equal<char>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* strict_equal(float expected, comparator_lambda<T, float> comparator) {
+    return this->strict_equal<float>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* strict_equal(long double expected, comparator_lambda<T, long double> comparator) {
+    return this->strict_equal<long double>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* strict_equal(wchar_t expected, comparator_lambda<T, wchar_t> comparator) {
+    return this->strict_equal<wchar_t>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* strict_equal(const char* expected, comparator_lambda<T, const char*> comparator) {
+    return this->strict_equal<const char*>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* strict_equal(const std::string& expected, comparator_lambda<T, const std::string&> comparator) {
+    return this->strict_equal<const std::string&>(expected, comparator);
+  }
+
+	/**
 	 * [alias]
 	 * Compares the actual and expected of different types using a custom comparator function.
 	 */
@@ -245,6 +559,111 @@ struct expect_t {
 	expect_t* seql(U expected, comparator_lambda<T, U> comparator) {
 		return this->strict_equal(expected, comparator);
 	};
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* seql(bool expected, comparator_lambda<T, bool> comparator) {
+    return this->seql<bool>(expected, comparator);
+  }
+
+  /**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* seql(short int expected, comparator_lambda<T, short int> comparator) {
+    return this->seql<short int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* seql(unsigned short int expected, comparator_lambda<T, unsigned short int> comparator) {
+    return this->seql<unsigned short int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* seql(unsigned int expected, comparator_lambda<T, unsigned int> comparator) {
+    return this->seql<unsigned int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* seql(int expected, comparator_lambda<T, int> comparator) {
+    return this->seql<int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* seql(unsigned long int expected, comparator_lambda<T, unsigned long int> comparator) {
+    return this->seql<unsigned long int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* seql(long long int expected, comparator_lambda<T, long long int> comparator) {
+    return this->seql<long long int>(expected, comparator);
+  }
+
+	/**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* seql(unsigned long long int expected, comparator_lambda<T, unsigned long long int> comparator) {
+    return this->seql<unsigned long long int>(expected, comparator);
+  }
+	
+  /**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* seql(unsigned char expected, comparator_lambda<T, unsigned char> comparator) {
+    return this->seql<unsigned char>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* seql(char expected, comparator_lambda<T, char> comparator) {
+    return this->seql<char>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* seql(float expected, comparator_lambda<T, float> comparator) {
+    return this->seql<float>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* seql(long double expected, comparator_lambda<T, long double> comparator) {
+    return this->seql<long double>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* seql(wchar_t expected, comparator_lambda<T, wchar_t> comparator) {
+    return this->seql<wchar_t>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* seql(const char* expected, comparator_lambda<T, const char*> comparator) {
+    return this->seql<const char*>(expected, comparator);
+  }
+
+	/**
+	* Compares the actual and expected of the same type.
+  */ 
+  expect_t* seql(const std::string& expected, comparator_lambda<T, const std::string&> comparator) {
+    return this->seql<const std::string&>(expected, comparator);
+  }
 
 	expect_t* close_to(double expected) {
 		return this->close_to(expected, 0.0001);
