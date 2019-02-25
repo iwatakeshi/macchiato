@@ -72,20 +72,20 @@ Requires C++11. Works on the following platforms:
 
 # API
 
-| Test Functions | Description  |
+| Test Function | Description  |
 |----------------|--------------|
 | `describe(string description, function<void> callback)`       | Describes the test suite and can be nested. |
 | `it(string description)` |  Describes a pending test case.    |
 | `it (string description, mocha_comparator<T, U> comparator)` 	| Describes a test case using a custom comparator. |
 | `it (string description, function<bool(T, U)> comparator)` 		| Describes a test case using a custom comparator function. |
 
-| Helper Functions | Description |
+| Helper Function | Description |
 |------------------|-------------|
 | `string mocha::summary()` 			| Returns a summary of the test.
 | `string mocha::print_summary()` | Outputs a summary of the test.
 | `void mocha::clear()` 					| Clears the test output and resetes the test counts.
 
-| Constructors | Description |
+| Constructor | Description |
 |--------------|-------------|
 | `expect(T actual)` | Initializes an object of type `expect_t` that provides a [chainable](#BDD) API.
 
@@ -155,32 +155,24 @@ Provided as chainable getters to improve the readability of your assertions. The
  - `of`
  - `same`
 
-## Chainable test members
+## Chainable Test API
 
 These provide actual functionality in the chain.
 
- - `never`: Negates any of assertions following in the chain.
- 	 - *substitute for `not` because `not` is a reserved keyword in C++*
- 	 - `expect(3).to->never->equal->(3)->result();`
- - `equal(U value, (mocha_comparator| comparator_lambda) comparator?)`: Asserts that the target loosely equals (==) to `value`.
- 	 - Aliases: `eql(...)`
-- `strict_equal(U value, (mocha_comparator| comparator_lambda) comparator?)`: Asserts that the target strictly equals (==) to `value`.
- 	 - Aliases: `seql(...)`
- - `closeTo(double expected, double tolerance)`: Asserts that the target is equal to `expected`, to within a +/- `tolerance` range.
- - `within(double lower, double upper)`: Asserts that the target is within a range.
- - `above(double value)`: Asserts that the target is greater than `value`.
- 	 - Aliases: `gt(...)`, `greater_than(...)`
- - `least(double value)`: Asserts that the target is greater than or equal to `value`.
- 	 - Aliases: `gte(...)`
- - `below(double value)`: Asserts that the target is less than `value`.
- 	 - Aliases: `lt(...)`, `lessThan(...)`
- - `most(double value)`: Asserts that the target is less than or equal to `value`.
- 	 - Aliases: `lte(...)`
- - `satisfy`: Asserts that the target passes a given truth test.
- 	 - `satisfy(function<bool, T> lambda_test)`
- 	 - `satisfy(function<bool, T> lambda_test, function<string, T, expectFlags> lambda_fail)`
- 	 - `satisfy(mocha::mocha_plugin plugin, U expected)`
- 	 - `satisfy(bool testResultBool, string failMessage)`
+| Member   | Alias(s)  | Description | Example  |
+|--------|--------|-------------|----------|
+| `never`|        | Negates any of assertions following in the chain. *substitute for `not` because `not` is a reserved keyword in C++* | `expect(3).to->never->equal->(3)->result();` |
+| `equal(U value, (mocha_comparator| comparator_lambda) comparator?)`| `eql(...)` | Asserts that the target loosely equals (==) to `value`. | |
+| `strict_equal(U value, (mocha_comparator| comparator_lambda) comparator?)` | `seql(...)` | Asserts that the target strictly equals (==) to `value`. | |
+| `close_to(double expected, double tolerance)` | | Asserts that the target is equal to `expected`, to within a +/- `tolerance` range. | |
+| `within(double lower, double upper)`         | | Asserts that the target is within a range. | |
+| `above(double value)` | `gt(...)`, `greater_than(...)`| Asserts that the target is greater than `value`. | |
+| `least(double value)` |`gte(...)` |Asserts that the target is greater than or equal to `value`. | |
+| `below(double value)` | `lt(...)`, `lessThan(...)` | Asserts that the target is less than `value`. | |
+| `most(double value)`| `lte(...)` | Asserts that the target is less than or equal to `value`. | | 
+| `satisfy(function<bool, T> test, function<string, T, expect_flags> fail?)` | | Asserts that the target passes a given truth test. | |
+| `satisfy(mocha::mocha_plugin plugin, U expected)` | | Asserts that the target passes a given truth test. | |
+| `satisfy(bool test_result_bool, string fail_message)` | | Asserts that the target passes a given truth test. | |
 
 ## Plugins
 
