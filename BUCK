@@ -6,8 +6,12 @@ prebuilt_cxx_library(
   header_namespace = '',
   exported_headers = [
     'mocha.hpp',
-    'include/string_utils.hpp',
-    'include/type_utils.hpp'
+    'include/mocha_comparator.hpp',
+    'include/mocha_plugin.hpp',
+    'include/mocha_result.hpp',
+    'include/mocha_settings.hpp',
+    'include/mocha_util.hpp',
+    'include/mocha_test_flags.hpp',
   ],
   licenses = [
     'LICENSE',
@@ -18,12 +22,19 @@ prebuilt_cxx_library(
   deps = buckaroo_deps()
 )
 
-cxx_binary(
-  name = 'main',
+cxx_test(
+  name = 'test',
+  raw_headers = [
+    'mocha.hpp',
+    'include/mocha_comparator.hpp',
+    'include/mocha_plugin.hpp',
+    'include/mocha_result.hpp',
+    'include/mocha_settings.hpp',
+    'include/mocha_util.hpp',
+    'include/mocha_test_flags.hpp',
+  ],
   srcs = [
-    'main.cpp',
+    'test/main.cpp',
   ],
-  deps = [
-    ':mocha',
-  ],
+  deps = buckaroo_deps()
 )
