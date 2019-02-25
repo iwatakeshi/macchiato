@@ -22,7 +22,7 @@ buckaroo install
 ```
 
 
-## Built in runner
+## Built-in Runner
 
 mocha has a main function that you can use to remove some boilerplate from your testing code.
 
