@@ -166,6 +166,8 @@ These provide actual functionality in the chain.
 | `equal(U value, mocha_comparator comparator)`| `eql(...)` | Asserts that the target loosely equals (==) to `value`. | |
 | `equal(U value, comparator_lambda comparator)`| `eql(...)` | Asserts that the target loosely equals (==) to `value`. | |
 | `strict_equal(U value, (mocha_comparator or comparator_lambda) comparator?)` | `seql(...)` | Asserts that the target strictly equals (==) to `value`. | |
+| `strict_equal(U value, mocha_comparator comparator)`| `seql(...)` | Asserts that the target strictly equals (==) to `value`. | |
+| `strict_equal(U value, comparator_lambda comparator)`| `seql(...)` | Asserts that the target strictly equals (==) to `value`. | |
 | `close_to(double expected, double tolerance)` | | Asserts that the target is equal to `expected`, to within a +/- `tolerance` range. | |
 | `within(double lower, double upper)`         | | Asserts that the target is within a range. | |
 | `above(double value)` | `gt(...)`, `greater_than(...)`| Asserts that the target is greater than `value`. | |
