@@ -24,7 +24,7 @@ int main() {
 				return expect(true).to->equal(true)->result();
 			});
 
-			it("should fail", [&]() {
+			it("should pass again", [&]() {
 				// Tell the compiler that we want this to be interpreted as a string
 				// and not as a const char*
 				return expect<std::string>("true").to->strict_equal(true)->result();
