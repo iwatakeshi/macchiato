@@ -118,7 +118,7 @@ describe("Car", [&]() {
 
   // Test values with same or different types using a comparator function (lambda).
   it("should have foor doors 4 doors. (comparator function)", [&] () {
-    auto comparator = ([&] (Car a, int b) {
+    auto comparator = [&] (Car a, int b) {
       return a.getNumDoors() == b;
     });
     return expect<MyCar>(Car()).to->equal<int>(4, comparator)->result();
