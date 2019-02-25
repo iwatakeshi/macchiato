@@ -35,22 +35,22 @@ On the desktop platform, you can pass in command-line arguments/flags.
 using namespace mocha;
 
 MOCHA_RUN_TESTS([] {
-	describe("Foo", [&]() {
-		describe("with bar", [&]() {
-			it("should baz", [&]() {
-				return expect(true).to->equal(true)->result();
-			});
+  describe("Foo", [&]() {
+    describe("with bar", [&]() {
+      it("should baz", [&]() {
+        return expect(true).to->equal(true)->result();
+      });
 
-			// This test will fail because it is false != true
-			it("should qux", [&]() {
-				return expect(false).to->equal(true)->result();
-			});
+      // This test will fail because it is false != true
+      it("should qux", [&]() {
+        return expect(false).to->equal(true)->result();
+      });
 
-			// An `it` call without a callback is considered "pending"
-			// In other words, the test still needs to written/implemented.
-			it("should norf");
-		});
-	});
+      // An `it` call without a callback is considered "pending"
+      // In other words, the test still needs to written/implemented.
+      it("should norf");
+    });
+  });
 });
 ```
 
@@ -97,32 +97,32 @@ Requires C++11. Works on the following platforms:
 using namespace mocha;
 
 describe("Car", [&]() {
-	
-	// Test values with the same type.
-	it("should have 4 wheels", [&]() {
-		return expect(Car().getNumWheels())).to->equal(4)->result();
-	});
+  
+  // Test values with the same type.
+  it("should have 4 wheels", [&]() {
+    return expect(Car().getNumWheels())).to->equal(4)->result();
+  });
 
-	// Test values with different types
-	it("should fail", [&] () {
-		return expect(Car().hasEngineStarted()).to->equal("true")->result();
-	});
+  // Test values with different types
+  it("should fail", [&] () {
+    return expect(Car().hasEngineStarted()).to->equal("true")->result();
+  });
 
-	// Test values with same or different types using a mocha comparator
-	it("should have foor doors 4 doors. (mocha comparator)", [&] () {
-		auto comparator = mocha_comparator<Car, int>([&] (Car a, int b) {
-			return a.getNumDoors() == b;
-		});
-		return expect(Car()).to->equal(4, comparator)->result();
-	});
+  // Test values with same or different types using a mocha comparator
+  it("should have foor doors 4 doors. (mocha comparator)", [&] () {
+    auto comparator = mocha_comparator<Car, int>([&] (Car a, int b) {
+      return a.getNumDoors() == b;
+    });
+    return expect(Car()).to->equal(4, comparator)->result();
+  });
 
-	// Test values with same or different types using a comparator function (lambda).
-	it("should have foor doors 4 doors. (comparator function)", [&] () {
-		auto comparator = ([&] (Car a, int b) {
-			return a.getNumDoors() == b;
-		});
-		return expect<MyCar>(Car()).to->equal<int>(4, comparator)->result();
-	});
+  // Test values with same or different types using a comparator function (lambda).
+  it("should have foor doors 4 doors. (comparator function)", [&] () {
+    auto comparator = ([&] (Car a, int b) {
+      return a.getNumDoors() == b;
+    });
+    return expect<MyCar>(Car()).to->equal<int>(4, comparator)->result();
+  });
 });
 
 mocha::print_summary();
@@ -134,7 +134,7 @@ mocha::print_summary();
 Behaviour driven development (BDD)
 
  - `expect`
- 	 - `expect(actual).then->then->then->equal(expected)->result();`
+    - `expect(actual).then->then->then->equal(expected)->result();`
 
 ## Language Chains
 
@@ -147,7 +147,7 @@ Provided as chainable getters to improve the readability of your assertions. The
  - `that`
  - `which`
  - `then`:
- 	 - *substitute for `and` because `and` is a reserved keyword in C++*
+    - *substitute for `and` because `and` is a reserved keyword in C++*
  - `has`
  - `have`
  - `with`
@@ -180,8 +180,8 @@ Plugin-like functionality is supported via `mocha::mocha_plugin` which can be us
 
 ```cpp
 mocha_plugin<typename T, typename U = T>(
-	function<bool, T, U> lambda_test,
-	function<string, T, U, test_flags> lambda_fail
+  function<bool, T, U> lambda_test,
+  function<string, T, U, test_flags> lambda_fail
 );
 ```
 
@@ -195,29 +195,29 @@ using namespace mocha;
 #include <math.h>
 
 auto plugin_does_divide_evenly = mocha_plugin<double>(
-	[&](double actual, double expected) {
-		return fmod(expected, actual) == 0;
-	},
-	[&](double actual, double expected, test_flags flags) {
-		return string("Expected ") + string(actual) + " to " + (flags.negate ? "not " : "") + "divide evenly into " + string(expected) + " but got a remainder of " + string(fmod(expected, actual));
-	}
+  [&](double actual, double expected) {
+    return fmod(expected, actual) == 0;
+  },
+  [&](double actual, double expected, test_flags flags) {
+    return string("Expected ") + string(actual) + " to " + (flags.negate ? "not " : "") + "divide evenly into " + string(expected) + " but got a remainder of " + string(fmod(expected, actual));
+  }
 );
 
 describe("Some numbers", [&]() {
-	it("should divide evenly into other numbers", [&]() {
-		return expect(2.0).to->satisfy(plugin_does_divide_evenly, 10.0)->result();
-	});
+  it("should divide evenly into other numbers", [&]() {
+    return expect(2.0).to->satisfy(plugin_does_divide_evenly, 10.0)->result();
+  });
 });
 ```
 
 # Options:
 
   - `mocha::mocha_settings`
- 	 - `use_color`: bool - whether to add ANSI escape codes for colored text. (Supported in many consoles)
- 	 	 - Default: `true`
- 	 	 - If you are wanting to have colored Text in Windows (CMD prompt), follow this guide [*Using libuv with Windows and Visual Studio: Getting Started* by Eric Eastwood](http://ericeastwood.com/blog/24/using-libuv-with-windows-and-visual-studio-getting-started)
- 	 - `indentation`: string - The indentation string/token every time we go a level deeper
- 	 	 - Default: `"\t"`
+    - `use_color`: bool - whether to add ANSI escape codes for colored text. (Supported in many consoles)
+       - Default: `true`
+       - If you are wanting to have colored Text in Windows (CMD prompt), follow this guide [*Using libuv with Windows and Visual Studio: Getting Started* by Eric Eastwood](http://ericeastwood.com/blog/24/using-libuv-with-windows-and-visual-studio-getting-started)
+    - `indentation`: string - The indentation string/token every time we go a level deeper
+       - Default: `"\t"`
 
 
 # CLI flags
@@ -230,13 +230,13 @@ If you are using your own `int main()` (default) and want to have mocha parse th
 
 ```cpp
 int main (int argc, char * const argv[]) {
-	// Parse the incoming arguments
-	mocha::parse_cli_args(argc, argv);
+  // Parse the incoming arguments
+  mocha::parse_cli_args(argc, argv);
 
-	// Do some tests... describe(...) { it(...) {}; };
+  // Do some tests... describe(...) { it(...) {}; };
 
-	// Output the test results
-	std::cout << mocha::output() << std::endl;
+  // Output the test results
+  std::cout << mocha::output() << std::endl;
 };
 ```
 
@@ -249,11 +249,11 @@ We strive to make the API syntax the same between mocha and mocha. Some sacrific
 We currently do not support the full mocha.js API. Missing TDD and some BDD `expect` members.
 
  - Some member names used in mocha are reserved keywords in C++ which needed to be renamed
- 	 - `then`(mocha C++) is equivalent to `and`(mocha JS)
- 	 - `never`(mocha C++) is equivalent to `not`(mocha JS)
+    - `then`(mocha C++) is equivalent to `and`(mocha JS)
+    - `never`(mocha C++) is equivalent to `not`(mocha JS)
  - Inline function declaration syntax difference
- 	 - mocha C++: `[&](){ /*...*/ }`
- 	 - mocha JS: `function() { /*...*/ }`
+    - mocha C++: `[&](){ /*...*/ }`
+    - mocha JS: `function() { /*...*/ }`
  - Test chaining syntax is different
- 	 - mocha C++: `expect(3).to->equal(3)->result();`
- 	 - mocha JS: `expect(3).to.equal(3);`
+    - mocha C++: `expect(3).to->equal(3)->result();`
+    - mocha JS: `expect(3).to.equal(3);`
