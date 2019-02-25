@@ -221,7 +221,7 @@ describe("Some numbers", [&]() {
        - Default: `true`
        - If you are wanting to have colored Text in Windows (CMD prompt), follow this guide [*Using libuv with Windows and Visual Studio: Getting Started* by Eric Eastwood](http://ericeastwood.com/blog/24/using-libuv-with-windows-and-visual-studio-getting-started)
     - `indentation`: string - The indentation string/token every time we go a level deeper
-       - Default: `"\t"`
+       - Default: 2 spaces
 
 
 # CLI flags

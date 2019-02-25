@@ -3,7 +3,7 @@
 namespace mocha {
 struct __mocha_settings {
   bool use_color = true;
-  std::string indention = "\t";
+  std::string indention = "  ";
 };
 
 __mocha_settings mocha_settings;
