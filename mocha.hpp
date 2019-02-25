@@ -409,25 +409,18 @@ namespace mocha {
         this->flags.negate = false;
       };
 
-      template<class U>
-      struct is_string
-        : std::integral_constant<
-            bool,
-            std::is_same<char const *, typename std::decay<U>::type>::value ||
-            std::is_same<char *, typename std::decay<U>::type>::value ||
-            std::is_same<std::string, typename std::decay<U>::type>::value
-      > {};
-
       template<typename U>
       std::string to_string(U value) {
-        return is_string<decltype(value)>::value ? "\"" + utils::to_string(value) + "\"" : utils::to_string(value);
+        // return mocha_comparator::is_string<decltype(value)>::value ? "\"" + utils::to_string(value) + "\"" : utils::to_string(value);
       }
   };
 
-  template <typename T>
-  expect_t<T> expect(T&& x) {
-    return { std::forward<T>(x) };
-  };
+expect_t(const char*) -> expect_t<std::string>;
+
+template <typename T>
+expect_t<T> expect(T&& x) {
+  return { std::forward<T>(x) };
+};
 
 void describe(std::string description, std::function<void()> lambda_describe) {
     // We just got to this depth_

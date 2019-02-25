@@ -19,37 +19,28 @@ std::string to_string(dummy_struct const&) { return "dummy_struct"; }
 
 int main() {
 	describe("mocha", [&]() {
-		describe("with whipped cream", [&]() {
-			it("should pass", [&]() {
-				return expect(true).to->equal(true)->result();
-			});
-
-			it("should pass again", [&]() {
-				// Tell the compiler that we want this to be interpreted as a string
-				// and not as a const char*
-				return expect<std::string>("true").to->strict_equal(true)->result();
-			});
-
-			// An `it` call without a callback is considered "pending"
-			// In other words, the test still needs to written/implemented.
-			it("should pend");
+		describe("api", [&]() {
 			
-			it("should magic", [&] () {
-				return expect(dummy_struct()).to->never->equal(dummy_struct(10))->result();
-			});
+			describe("equal", [&] {
+				it("should pass: true == true", [&]() {
+					return expect(true).to->equal(true)->result();
+				});
 
-			it("should fly", [&] () {
-				return expect(dummy_struct()).to->never->equal(100, 
-				mocha_comparator<dummy_struct, int> ([&] (dummy_struct a, int b) -> bool {
-					return false;
-				}))->result();
-			});
+				it("should fail: true != false", [&]() {
+					return expect(true).to->never->equal(false)->result();
+				});
 
-			it("should fly again", [&] () {
-				return expect<dummy_struct>(dummy_struct()).to->never->equal<int>(100, 
-				([&] (auto a, auto b) -> bool {
-					return false;
-				}))->result();
+				it("should pass: \"true\" == \"true\"", [&]() {
+					return expect("true").to->equal("true")->result();
+				});
+
+				it("should fail: \"true\" == \"false\"", [&]() {
+					return expect("true").to->never->equal("false")->result();
+				});
+
+				it("should fail: true != false", [&]() {
+					return expect<std::string>("true").to->equal(false)->result();
+				});
 			});
 		});
 	});
