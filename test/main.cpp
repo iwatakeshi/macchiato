@@ -19,7 +19,7 @@ std::string to_string(dummy_struct const&) { return "dummy_struct"; }
 
 int main() {
 	describe("mocha", [&]() {
-		describe("with whipcream", [&]() {
+		describe("with whipped cream", [&]() {
 			it("should pass", [&]() {
 				return expect(true).to->equal(true)->result();
 			});
