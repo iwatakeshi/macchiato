@@ -49,16 +49,23 @@ template <typename T>
 using type_t = typename std::conditional<
 					std::is_same<char const *, typename std::decay<T>::type>::value ||
           std::is_same<char *, typename std::decay<T>::type>::value,
-					const std::string&, T>::type;
+					std::string, T>::type;
 
   // expect: BDD
 template <typename T>
 struct expect_t {
 	expect_t(T actual) : actual(actual) { };
 	
+  /**
+	 * Compares the actual and expected of the same type.
+   */ 
+  expect_t* equal(const char* expected) {
+    return this->equal<std::string>(std::string(expected));
+  }
+
 	/**
 	 * Compares the actual and expected of the same type.
-		*/
+   */ 
 	expect_t* equal(T expected) {
 		bool result = mocha_comparator<type_t<T>, type_t<T>>().equal(this->actual, expected);
 		this->add_result_t(
@@ -70,15 +77,15 @@ struct expect_t {
 
 	/**
 	 * [alias]
-		* Compares the actual and expected of the same type.
-		*/
+	 * Compares the actual and expected of the same type.
+	 */
 	expect_t* eql(T expected) {
 		return this->equal(expected);
 	};
 
 	/**
 	 * Compares the actual and expected of different types.
-		*/
+	 */
 	template<typename U>
 	expect_t* equal(U expected) {
 		bool result = mocha_comparator<type_t<T>, type_t<U>>().equal(this->actual, expected);
@@ -113,8 +120,8 @@ struct expect_t {
 
 	/**
 	 * [alias]
-		* Compares the actual and expected of different types using a custom comparator function.
-		*/
+	 * Compares the actual and expected of different types using a custom comparator function.
+	 */
 	template <typename U>
 	expect_t* eql(U expected, const mocha_comparator<T, U>& comparator) {
 		return this->equal(expected, comparator);
@@ -122,7 +129,7 @@ struct expect_t {
 
 	/**
 	 * Compares the actual and expected of different types using a custom comparator function.
-		*/
+	 */
 	template <typename U>
 	expect_t* equal(U expected, comparator_lambda<T, U> comparator) {
 		bool result = comparator(this->actual, expected);
@@ -135,8 +142,8 @@ struct expect_t {
 
 	/**
 	 * [alias]
-		* Compares the actual and expected of different types using a custom comparator function.
-		*/
+	 * Compares the actual and expected of different types using a custom comparator function.
+	 */
 	template <typename U>
 	expect_t* eql(U expected, comparator_lambda<T, U> comparator) {
 		return this->equal(expected, comparator);
@@ -144,7 +151,7 @@ struct expect_t {
 
 	/**
 	 * Compares the actual and expected of the same type.
-		*/
+	 */
 	expect_t* strict_equal(T expected) {
 		bool result = mocha_comparator<type_t<T>, type_t<T>>().strict_equal(this->actual, expected);
 		this->add_result_t(
@@ -156,15 +163,23 @@ struct expect_t {
 
 	/**
 	 * [alias]
-		* Compares the actual and expected of the same type.
-		*/
+	 * Compares the actual and expected of the same type.
+	 */
 	expect_t* seql(T expected) {
 		return this->equal(expected);
 	};
+  
+  /**
+	 * Compares the actual and expected of different types.
+	 */
+	template <typename U>
+	expect_t* strict_equal(const char* expected) {
+    return this->strict_equal<std::string>(std::string(expected));
+  }
 
 	/**
 	 * Compares the actual and expected of different types.
-		*/
+	 */
 	template <typename U>
 	expect_t* strict_equal(U expected) {
 		bool result = mocha_comparator<type_t<T>, type_t<U>>().strict_equal(this->actual, expected);
@@ -178,8 +193,8 @@ struct expect_t {
 
 	/**
 	 * [alias]
-		* Compares the actual and expected of different types.
-		*/
+	 * Compares the actual and expected of different types.
+	 */
 	template <typename U>
 	expect_t* seql(U expected) {
 		return this->strict_equal(expected);
@@ -187,7 +202,7 @@ struct expect_t {
 
 	/**
 	 * Compares the actual and expected of different types using a custom comparator function.
-		*/
+	 */
 	template <typename U>
 	expect_t* strict_equal(U expected, const mocha_comparator<T, U>& comparator) {
 		bool result = comparator.strict_equal(this->actual, expected);
@@ -201,8 +216,8 @@ struct expect_t {
 
 	/**
 	 * [alias]
-		* Compares the actual and expected of different types using a custom comparator function.
-		*/
+	 * Compares the actual and expected of different types using a custom comparator function.
+	 */
 	template <typename U>
 	expect_t* seql(U expected, const mocha_comparator<T, U>& comparator) {
 		return this->strict_equal(expected, comparator);
@@ -210,7 +225,7 @@ struct expect_t {
 
 	/**
 	 * Compares the actual and expected of different types using a custom comparator function.
-		*/
+	 */
 	template <typename U>
 	expect_t* strict_equal(U expected, comparator_lambda<T, U> comparator) {
 		bool result = comparator(this->actual, expected);
@@ -224,8 +239,8 @@ struct expect_t {
 
 	/**
 	 * [alias]
-		* Compares the actual and expected of different types using a custom comparator function.
-		*/
+	 * Compares the actual and expected of different types using a custom comparator function.
+	 */
 	template <typename U>
 	expect_t* seql(U expected, comparator_lambda<T, U> comparator) {
 		return this->strict_equal(expected, comparator);

@@ -56,7 +56,7 @@ int main() {
 					// });
 
 					it("should pass: \"true\" == \"true\"", [&]() {
-						return expect("true").to->equal("true")->result();
+						return expect("true").to->eql("true")->result();
 					});
 
 					// it("should fail: \"true\" != \"false\"", [&]() {
