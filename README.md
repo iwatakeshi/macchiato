@@ -87,7 +87,7 @@ Requires C++11. Works on the following platforms:
 
 | Constructor | Description |
 |--------------|-------------|
-| `expect(T actual)` | Initializes an object of type `expect_t` that provides a [chainable](#BDD) API.
+| `expect(T actual)` | Return a pointer of type `expect_t` that provides a [chainable](#BDD) API.
 
 ### Example
 
