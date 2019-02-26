@@ -103,7 +103,7 @@ Requires C++11. Works on the following platforms:
 using namespace mocha;
 
 describe("Car", [&]() {
-  
+
   // Test values with the same type.
   it("should have 4 wheels", [&]() {
     return expect(Car().getNumWheels())).to->equal(4)->result();
@@ -179,7 +179,7 @@ These provide actual functionality in the chain.
 | `above(double value)` | `gt(...)`, `greater_than(...)`| Asserts that the target is greater than `value`. | |
 | `least(double value)` |`gte(...)` |Asserts that the target is greater than or equal to `value`. | |
 | `below(double value)` | `lt(...)`, `lessThan(...)` | Asserts that the target is less than `value`. | |
-| `most(double value)`| `lte(...)` | Asserts that the target is less than or equal to `value`. | | 
+| `most(double value)`| `lte(...)` | Asserts that the target is less than or equal to `value`. | |
 | `satisfy(function<bool, T> test, function<string, T, expect_flags> fail?)` | | Asserts that the target passes a given truth test. | |
 | `satisfy(mocha::mocha_plugin plugin, U expected)` | | Asserts that the target passes a given truth test. | |
 | `satisfy(bool test_result_bool, string fail_message)` | | Asserts that the target passes a given truth test. | |
