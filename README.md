@@ -20,7 +20,13 @@ buckaroo add github.com/iwatakeshi/mocha/
 # Install dependencies
 buckaroo install
 ```
+To run the tests, simply run:
 
+```bash
+buck test :test
+```
+
+> `buck` only supports Google's and Boost's test library and the test will fail at the end, but this should be ignored.
 
 ## Built-in Runner
 
