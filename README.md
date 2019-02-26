@@ -110,7 +110,7 @@ describe("Car", [&]() {
   });
 
   // Test values with different types
-  it("should start engine", [&] () {
+  it("should determine if engine has started", [&] () {
     return expect(Car().hasEngineStarted()).to->strict_equal("true")->result();
   });
 
