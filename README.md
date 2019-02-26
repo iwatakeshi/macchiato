@@ -76,7 +76,7 @@ Requires C++11. Works on the following platforms:
  - Most desktop environments
  - Visual Studio
 
-# API
+## API
 
 | Test Function | Description  |
 |----------------|--------------|
