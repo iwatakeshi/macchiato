@@ -4,7 +4,6 @@
 #include <to_string.hpp>
 #include <functional>
 #include <iostream>
-#include <any>
 #include <map>
 #include <cmath>
 #include "mocha_util.hpp"
@@ -44,172 +43,161 @@ type_name() {
 	return r;
 }
 
+// TODO: Add additional types to compare against.
 namespace mocha {
+  
 
-void debug (std::string message = "") {
-	std::cout << message << std::endl; 
-}
+template <typename T>
+inline bool __equal(T a, T b) { return a == b; };
 
-template <typename t_type, typename u_type>
+template <typename T, typename U>
+inline bool __equal(T a, U b) {
+  std::string a_t = type_name<decltype(a)>();
+  std::string b_t = type_name<decltype(b)>();
+  _mocha_util.debug(
+    _mocha_util.generate_depth_string() +
+    _mocha_util.color_yellow("[mocha::warn] - Using a default comparator for type [T = " + a_t + "] and [U = " + b_t + "] which will return false.")
+  );
+};
+
+template<typename T>
+inline bool __strict_equal(T a, T b) { return a == b; }
+
+// Strict comparison of different types
+// will default to false
+template<typename T, typename U>
+inline bool __strict_equal(T a, U b) {
+  return false;
+};
+
+// Compare with int
+template<>
+inline bool __equal<>(int a, int64_t b) { return a == b; }
+template<>
+inline bool __equal<>(int a, bool b) { return a == int(b); }
+template<>
+inline bool __equal<>(int a, double b) { return a == int(std::round(b)); };
+template<>
+inline bool __equal<>(int a, float b) { return a == int(std::round(b)); };
+template<>
+inline bool __equal<>(int a, char b) { return a == int(std::round(b)); };
+template<>
+inline bool __equal<>(int a, std::string b) { return a == std::stoi(b); };
+
+// Compare with int64_t
+template<>
+inline bool __equal<>(int64_t a, int b) { return a == b; }
+template<>
+inline bool __equal<>(int64_t a, bool b) { return a == int64_t(b); }
+template<>
+inline bool __equal<>(int64_t a, double b) { return a == int64_t(std::round(b)); };
+template<>
+inline bool __equal<>(int64_t a, float b) { return a == int64_t(std::round(b)); };
+template<>
+inline bool __equal<>(int64_t a, char b) { return a == int64_t(std::round(b)); };
+template<>
+inline bool __equal<>(int64_t a, std::string b) { return a == std::stoll(b); };
+
+// Compare with doubles
+// template<>
+// inline bool __equal(double a, double b) { return a == b; }
+template<>
+inline bool __equal<>(double a, int b) { return std::round(a) == double(b); }
+template<>
+inline bool __equal<>(double a, int64_t b) { return std::round(a) == double(b); }
+template<>
+inline bool __equal<>(double a, bool b) { return std::round(a) == double(int(b)); }
+template<>
+inline bool __equal<>(double a, float b) { return a == double(b); };
+template<>
+inline bool __equal<>(double a, char b) { return std::round(a) == double(int(b)); };
+template<>
+inline bool __equal<>(double a, std::string b) { return a == std::stod(b); };
+
+// Compare with floats
+// template<>
+// inline bool __equal(float a, float b) { return a == b; }
+template<>
+inline bool __equal<>(float a, int64_t b) { return std::round(a) == float(b); }
+template<>
+inline bool __equal<>(float a, int b) { return std::round(a) == float(b); }
+template<>
+inline bool __equal<>(float a, bool b) { return std::round(a) == float(int(b)); };
+template<>
+inline bool __equal<>(float a, double b) { return a == float(b); };
+template<>
+inline bool __equal<>(float a, char b) { return std::round(a) == float(int(b)); };
+template<>
+inline bool __equal<>(float a, std::string b) { return a == std::stof(b); };
+
+// Compare with char
+// template<>
+// inline bool __equal(char a, char b) { return a == b; }
+template<>
+inline bool __equal<>(char a, int b) { return int(a - '0') == b; }
+template<>
+inline bool __equal<>(char a, int64_t b) { return int64_t(a - '0') == b; }
+template<>
+inline bool __equal<>(char a, bool b) { return int(a - '0') == int(b); }
+template<>
+inline bool __equal<>(char a, double b) { return int64_t(a - '0') == int64_t((std::round(b))); };
+template<>
+inline bool __equal<>(char a, float b) { return int64_t(a - '0') == int64_t((std::round(b))); };
+template<>
+inline bool __equal<>(char a, std::string b) { return std::string(1, a) == b; };
+
+// Compare with string
+// template<>
+// inline bool __equal(std::string a, std::string b) { return a == b; }
+template<>
+inline bool __equal<>(std::string a, int b) { return a == utils::to_string(b); }
+template<>
+inline bool __equal<>(std::string a, int64_t b) { return a == utils::to_string(b); }
+template<>
+inline bool __equal<>(std::string a, bool b) { return a == utils::to_string(b); }
+template<>
+inline bool __equal<>(std::string a, double b) { return a == utils::to_string(b); };
+template<>
+inline bool __equal<>(std::string a, float b) { return a == utils::to_string(b); };
+template<>
+inline bool __equal<>(std::string a, char b) { return a == utils::to_string(b); };
+
+// Compare with bools
+// template<>
+// inline bool __equal(bool a, bool b) { return a == b; }
+template<>
+inline bool __equal<>(bool a, int b) { return a == b; }
+template<>
+inline bool __equal<>(bool a, int64_t b) { return a == b; }
+template<>
+inline bool __equal<>(bool a, double b) { return a == int(std::round(b)); }
+template<>
+inline bool __equal<>(bool a, float b) { return a == int(std::round(b)); }
+template<>
+inline bool __equal<>(bool a, char b) { return a == int(std::round(b)); }
+template<>
+inline bool __equal<>(bool a, std::string b) { return utils::to_string(a) == b; }
+
+
+template<typename t_type, typename u_type>
 struct mocha_comparator {
-  // https://stackoverflow.com/a/28085851
   using T = typename std::conditional<std::is_fundamental<t_type>::value, t_type, t_type&>::type;
   using U = typename std::conditional<std::is_fundamental<u_type>::value, u_type, u_type&>::type;
-
-public:
   mocha_comparator() {
+    equal = [&](T a, U b) -> bool { return __equal(a, b); };
     if (_mocha_util.is_same<T, U>()) {
-      equal = [&] (T a, U b) -> bool { return compare(a, b); };
       strict_equal = equal;
     } else  {
-      equal = [&] (T a, U b) -> bool { return equal_(a, b); };
-      strict_equal = [&] (T a, U b) -> bool { return strict_equal_(a, b); };
+      strict_equal = [&] (T a, U b) -> bool { return __strict_equal(a, b); };
     }
   };
 
-
-  
   mocha_comparator(std::function<bool(T, U)> comparator):
    equal(comparator),
    strict_equal(comparator) {};
 
   std::function<bool(T, U)> equal;
   std::function<bool(T, U)> strict_equal;
-
-private:
-
-  /**
-   * Dummy Functions
-   * ======================
-   * When the types are different, fool the compiler
-   * to make it think we will use this function
-   * when the types are the same for compare()
-   * and visa-versa for equal() and strict_equal()
-   */
-  
-  template<typename V, typename W>
-  inline bool compare(V a, W b) { return true; }
-  template<typename V>
-  inline bool equal_(V a, V b) { return true; }
-  template<typename V>
-  inline bool strict_equal_(V a, V b) { return true; }
-  /* ====================================================== */
-
-  // Compare two objects of the same types
-  template<typename V>
-  inline bool compare(V a, V b) { return a == b; }
-
-  // Compare with int
-  inline bool equal_(int a, int64_t b) { return a == b; }
-  inline bool equal_(int a, bool b) { return a == int(b); }
-  inline bool equal_(int a, double b) { return a == int(std::round(b)); };
-  inline bool equal_(int a, float b) { return a == int(std::round(b)); };
-  inline bool equal_(int a, char b) { return a == int(std::round(b)); };
-  inline bool equal_(int a, std::string const& b) { return a == std::stoi(b); };
-  
-  // Compare with int64_t
-  inline bool equal_(int64_t a, int64_t b) { return a == b; }
-  inline bool equal_(int64_t a, bool b) { return a == int64_t(b); }
-  inline bool equal_(int64_t a, double b) { return a == int64_t(std::round(b)); };
-  inline bool equal_(int64_t a, float b) { return a == int64_t(std::round(b)); };
-  inline bool equal_(int64_t a, char b) { return a == int64_t(std::round(b)); };
-  inline bool equal_(int64_t a, std::string const& b) { return a == std::stoll(b); };
-
-  // Compare with doubles
-  inline bool equal_(double a, int b) { return std::round(a) == double(b); }
-  inline bool equal_(double a, int64_t b) { return std::round(a) == double(b); }
-  inline bool equal_(double a, bool b) { return std::round(a) == double(int(b)); }
-  inline bool equal_(double a, float b) { return a == double(b); };
-  inline bool equal_(double a, char b) { return std::round(a) == double(int(b)); };
-  inline bool equal_(double a, std::string const& b) { return a == std::stod(b); };
-
-  // Compare with floats
-  inline bool equal_(float a, int64_t b) { return std::round(a) == float(b); }
-  inline bool equal_(float a, int b) { return std::round(a) == float(b); }
-  inline bool equal_(float a, bool b) { return std::round(a) == float(int(b)); };
-  inline bool equal_(float a, double b) { return a == float(b); };
-  inline bool equal_(float a, char b) { return std::round(a) == float(int(b)); };
-  inline bool equal_(float a, std::string const& b) { return a == std::stof(b); };
-
-  // Compare with char
-  inline bool equal_(char a, int b) { return int(a - '0') == b; }
-  inline bool equal_(char a, int64_t b) { return int64_t(a - '0') == b; }
-  inline bool equal_(char a, bool b) { return int(a - '0') == int(b); }
-  inline bool equal_(char a, double b) { return int64_t(a - '0') == int64_t((std::round(b))); };
-  inline bool equal_(char a, float b) { return int64_t(a - '0') == int64_t((std::round(b))); };
-  inline bool equal_(char a, std::string const& b) { return std::string(1, a) == b; };
-
-  // Compare with string
-  inline bool equal_(std::string const& a, int b) { return a == utils::to_string(b); }
-  inline bool equal_(std::string const& a, int64_t b) { return a == utils::to_string(b); }
-  inline bool equal_(std::string const& a, bool b) { return a == utils::to_string(b); }
-  inline bool equal_(std::string const& a, double b) { return a == utils::to_string(b); };
-  inline bool equal_(std::string const& a, float b) { return a == utils::to_string(b); };
-  inline bool equal_(std::string const& a, char b) { return a == utils::to_string(b); };
-
-  // Compare with bools
-  inline bool equal_(bool a, int b) { return a == b; }
-  inline bool equal_(bool a, int64_t b) { return a == b; }
-  inline bool equal_(bool a, double b) { return a == int(std::round(b)); }
-  inline bool equal_(bool a, float b) { return a == int(std::round(b)); }
-  inline bool equal_(bool a, char b) { return a == int(std::round(b)); }
-  inline bool equal_(bool a, std::string const& b) { return utils::to_string(a) == b; }
-
-  // Compare with int
-  inline bool strict_equal_(int a, int64_t b) { return false; }
-  inline bool strict_equal_(int a, bool b) { return false; }
-  inline bool strict_equal_(int a, double b) { return false; };
-  inline bool strict_equal_(int a, float b) { return false; };
-  inline bool strict_equal_(int a, char b) { return false; };
-  inline bool strict_equal_(int a, std::string const& b) { return false; };
-
-  // Compare with int64_t
-  inline bool strict_equal_(int64_t a, int b) { return false; }
-  inline bool strict_equal_(int64_t a, bool b) { return false; }
-  inline bool strict_equal_(int64_t a, double b) { return false; };
-  inline bool strict_equal_(int64_t a, float b) { return false; };
-  inline bool strict_equal_(int64_t a, char b) { return false; };
-  inline bool strict_equal_(int64_t a, std::string const& b) { return false; };
-
-  // Compare with doubles
-  inline bool strict_equal_(double a, int b) { return false; }
-  inline bool strict_equal_(double a, int64_t b) { return false; }
-  inline bool strict_equal_(double a, bool b) { return false; }
-  inline bool strict_equal_(double a, float b) { return false; };
-  inline bool strict_equal_(double a, char b) { return false; };
-  inline bool strict_equal_(double a, std::string const& b) { return false; };
-
-  // Compare with floats
-  inline bool strict_equal_(float a, int b) { return false; }
-  inline bool strict_equal_(float a, int64_t b) { return false; }
-  inline bool strict_equal_(float a, bool b) { return false; }
-  inline bool strict_equal_(float a, double b) { return false; };
-  inline bool strict_equal_(float a, char b) { return false; };
-  inline bool strict_equal_(float a, std::string const& b) { return false; };
-
-  // Compare with char
-  inline bool strict_equal_(char a, int b) { return false; }
-  inline bool strict_equal_(char a, int64_t b) { return false; }
-  inline bool strict_equal_(char a, bool b) { return false; }
-  inline bool strict_equal_(char a, double b) { return false; };
-  inline bool strict_equal_(char a, float b) { return false; };
-  inline bool strict_equal_(char a, std::string const& b) { return false; };
-
-  // Compare with string
-  inline bool strict_equal_(std::string const& a, int b) { return false; }
-  inline bool strict_equal_(std::string const& a, int64_t b) { return false; }
-  inline bool strict_equal_(std::string const& a, bool b) { return false; }
-  inline bool strict_equal_(std::string const& a, double b) { return false; };
-  inline bool strict_equal_(std::string const& a, float b) { return false; };
-  inline bool strict_equal_(std::string const& a, char b) { return false; };
-
-  // Compare with bools
-  inline bool strict_equal_(bool a, int b) { return false; }
-  inline bool strict_equal_(bool a, int64_t b) { return false; }
-  inline bool strict_equal_(bool a, double b) { return false; }
-  inline bool strict_equal_(bool a, float b) { return false; }
-  inline bool strict_equal_(bool a, char b) { return false; }
-  inline bool strict_equal_(bool a, std::string const& b) { return false; }
 };
 
 } // mocha
