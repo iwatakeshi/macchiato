@@ -26,7 +26,7 @@ To run the tests, simply run:
 buck test :test
 ```
 
-> `buck` only supports Google's and Boost's test library and the test will fail at the end, but this should be ignored.
+> `buck` only supports Google's and Boost's test library causing the test to fail at the end, but this should be ignored.
 
 ## Built-in Runner
 
