@@ -25,15 +25,15 @@
 namespace mocha {
 
 std::string summary() {
-	return _mocha_util.summary();
+  return _mocha_util.summary();
 };
 
 void print_summary() {
-	std::cout << _mocha_util.summary() << std::endl;
+  std::cout << _mocha_util.summary() << std::endl;
 }
 
 void clear() {
-	_mocha_util.clear();
+  _mocha_util.clear();
 };
 
 template <typename T, typename U>
@@ -46,817 +46,817 @@ using string_t = typename std::conditional<std::is_fundamental<T>::value, std::s
 // when comparing other types.
 template <typename T>
 using type_t = typename std::conditional<
-					std::is_same<char const *, typename std::decay<T>::type>::value ||
+          std::is_same<char const *, typename std::decay<T>::type>::value ||
           std::is_same<char *, typename std::decay<T>::type>::value,
-					std::string, T>::type;
+          std::string, T>::type;
 
   // expect: BDD
 template <typename T>
 struct expect_t {
-	expect_t(T actual) : actual(actual) { };
-	
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  expect_t(T actual) : actual(actual) { };
+
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* equal(const char* expected) {
     return this->equal<std::string>(std::string(expected));
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
-	expect_t* equal(T expected) {
-		bool result = mocha_comparator<type_t<T>, type_t<T>>().equal(this->actual, expected);
-		this->add_result_t(
-			result,
-			"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
-		);
-		return this;
-	};
+  /**
+   * Compares the actual and expected of the same type.
+   */
+  expect_t* equal(T expected) {
+    bool result = mocha_comparator<type_t<T>, type_t<T>>().equal(this->actual, expected);
+    this->add_result_t(
+      result,
+      "Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
+    );
+    return this;
+  };
 
-	/**
-	 * [alias]
-	 * Compares the actual and expected of the same type.
-	 */
-	expect_t* eql(T expected) {
-		return this->equal(expected);
-	};
+  /**
+   * [alias]
+   * Compares the actual and expected of the same type.
+   */
+  expect_t* eql(T expected) {
+    return this->equal(expected);
+  };
 
-	/**
-	 * Compares the actual and expected of different types.
-	 */
-	template<typename U>
-	expect_t* equal(U expected) {
-		bool result = mocha_comparator<type_t<T>, type_t<U>>().equal(this->actual, expected);
-		this->add_result_t(
-			result,
-			"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
-		);
-		return this;
-	};
+  /**
+   * Compares the actual and expected of different types.
+   */
+  template<typename U>
+  expect_t* equal(U expected) {
+    bool result = mocha_comparator<type_t<T>, type_t<U>>().equal(this->actual, expected);
+    this->add_result_t(
+      result,
+      "Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
+    );
+    return this;
+  };
 
-	/**
-	 * [alias]
-		* Compares the actual and expected of different types.
-		*/
-	template <typename U>		
-	expect_t* eql(U expected) {
-		return this->equal(expected);
-	};
+  /**
+   * [alias]
+    * Compares the actual and expected of different types.
+    */
+  template <typename U>
+  expect_t* eql(U expected) {
+    return this->equal(expected);
+  };
 
-	/**
-	 * Compares the actual and expected of different types using a custom comparator function.
-		*/
-	template <typename U>
-	expect_t* equal(U expected, const mocha_comparator<T, U>& comparator) {
-		bool result = comparator.equal(this->actual, expected);
-		this->add_result_t(
-			result,
-			"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
-		);
-		return this;
-	};
+  /**
+   * Compares the actual and expected of different types using a custom comparator function.
+    */
+  template <typename U>
+  expect_t* equal(U expected, const mocha_comparator<T, U>& comparator) {
+    bool result = comparator.equal(this->actual, expected);
+    this->add_result_t(
+      result,
+      "Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
+    );
+    return this;
+  };
 
-	/**
-	 * [alias]
-	 * Compares the actual and expected of different types using a custom comparator function.
-	 */
-	template <typename U>
-	expect_t* eql(U expected, const mocha_comparator<T, U>& comparator) {
-		return this->equal(expected, comparator);
-	};
+  /**
+   * [alias]
+   * Compares the actual and expected of different types using a custom comparator function.
+   */
+  template <typename U>
+  expect_t* eql(U expected, const mocha_comparator<T, U>& comparator) {
+    return this->equal(expected, comparator);
+  };
 
-	/**
-	 * Compares the actual and expected of different types using a custom comparator function.
-	 */
-	template <typename U>
-	expect_t* equal(U expected, comparator_lambda<T, U> comparator) {
-		bool result = comparator(this->actual, expected);
-		this->add_result_t(
-			result,
-			"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
-		);
-		return this;
-	};
+  /**
+   * Compares the actual and expected of different types using a custom comparator function.
+   */
+  template <typename U>
+  expect_t* equal(U expected, comparator_lambda<T, U> comparator) {
+    bool result = comparator(this->actual, expected);
+    this->add_result_t(
+      result,
+      "Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
+    );
+    return this;
+  };
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* equal(bool expected, comparator_lambda<T, bool> comparator) {
     return this->equal<bool>(expected, comparator);
   }
 
   /**
-	 * Compares the actual and expected of the same type.
-   */ 
+   * Compares the actual and expected of the same type.
+   */
   expect_t* equal(short int expected, comparator_lambda<T, short int> comparator) {
     return this->equal<short int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* equal(unsigned short int expected, comparator_lambda<T, unsigned short int> comparator) {
     return this->equal<unsigned short int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* equal(unsigned int expected, comparator_lambda<T, unsigned int> comparator) {
     return this->equal<unsigned int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* equal(int expected, comparator_lambda<T, int> comparator) {
     return this->equal<int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* equal(unsigned long int expected, comparator_lambda<T, unsigned long int> comparator) {
     return this->equal<unsigned long int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* equal(long long int expected, comparator_lambda<T, long long int> comparator) {
     return this->equal<long long int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* equal(unsigned long long int expected, comparator_lambda<T, unsigned long long int> comparator) {
     return this->equal<unsigned long long int>(expected, comparator);
   }
-	
+
   /**
-	* Compares the actual and expected of the same type.
-  */ 
+  * Compares the actual and expected of the same type.
+  */
   expect_t* equal(unsigned char expected, comparator_lambda<T, unsigned char> comparator) {
     return this->equal<unsigned char>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* equal(char expected, comparator_lambda<T, char> comparator) {
     return this->equal<char>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* equal(float expected, comparator_lambda<T, float> comparator) {
     return this->equal<float>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* equal(long double expected, comparator_lambda<T, long double> comparator) {
     return this->equal<long double>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* equal(wchar_t expected, comparator_lambda<T, wchar_t> comparator) {
     return this->equal<wchar_t>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* equal(const char* expected, comparator_lambda<T, const char*> comparator) {
     return this->equal<const char*>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* equal(const std::string& expected, comparator_lambda<T, const std::string&> comparator) {
     return this->equal<const std::string&>(expected, comparator);
   }
 
-	/**
-	 * [alias]
-	 * Compares the actual and expected of different types using a custom comparator function.
-	 */
-	template <typename U>
-	expect_t* eql(U expected, comparator_lambda<T, U> comparator) {
-		return this->equal(expected, comparator);
-	};
+  /**
+   * [alias]
+   * Compares the actual and expected of different types using a custom comparator function.
+   */
+  template <typename U>
+  expect_t* eql(U expected, comparator_lambda<T, U> comparator) {
+    return this->equal(expected, comparator);
+  };
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* eql(bool expected, comparator_lambda<T, bool> comparator) {
     return this->eql<bool>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* eql(short int expected, comparator_lambda<T, short int> comparator) {
     return this->eql<short int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* eql(unsigned short int expected, comparator_lambda<T, unsigned short int> comparator) {
     return this->eql<unsigned short int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* eql(unsigned int expected, comparator_lambda<T, unsigned int> comparator) {
     return this->eql<unsigned int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* eql(int expected, comparator_lambda<T, int> comparator) {
     return this->eql<int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* eql(unsigned long int expected, comparator_lambda<T, unsigned long int> comparator) {
     return this->eql<unsigned long int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* eql(long long int expected, comparator_lambda<T, long long int> comparator) {
     return this->eql<long long int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* eql(unsigned long long int expected, comparator_lambda<T, unsigned long long int> comparator) {
     return this->eql<unsigned long long int>(expected, comparator);
   }
-	
+
   /**
-	* Compares the actual and expected of the same type.
-  */ 
+  * Compares the actual and expected of the same type.
+  */
   expect_t* eql(unsigned char expected, comparator_lambda<T, unsigned char> comparator) {
     return this->eql<unsigned char>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* eql(char expected, comparator_lambda<T, char> comparator) {
     return this->eql<char>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* eql(float expected, comparator_lambda<T, float> comparator) {
     return this->eql<float>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* eql(long double expected, comparator_lambda<T, long double> comparator) {
     return this->eql<long double>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* eql(wchar_t expected, comparator_lambda<T, wchar_t> comparator) {
     return this->eql<wchar_t>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* eql(const char* expected, comparator_lambda<T, const char*> comparator) {
     return this->eql<const char*>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* eql(const std::string& expected, comparator_lambda<T, const std::string&> comparator) {
     return this->eql<const std::string&>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-	 */
-	expect_t* strict_equal(T expected) {
-		bool result = mocha_comparator<type_t<T>, type_t<T>>().strict_equal(this->actual, expected);
-		this->add_result_t(
-			result,
-			"Expected " + to_string(this->actual) + " to strictly " + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
-		);
-		return this;
-	};
-
-	/**
-	 * [alias]
-	 * Compares the actual and expected of the same type.
-	 */
-	expect_t* seql(T expected) {
-		return this->equal(expected);
-	};
-  
   /**
-	 * Compares the actual and expected of different types.
-	 */
-	expect_t* strict_equal(const char* expected) {
+   * Compares the actual and expected of the same type.
+   */
+  expect_t* strict_equal(T expected) {
+    bool result = mocha_comparator<type_t<T>, type_t<T>>().strict_equal(this->actual, expected);
+    this->add_result_t(
+      result,
+      "Expected " + to_string(this->actual) + " to strictly " + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
+    );
+    return this;
+  };
+
+  /**
+   * [alias]
+   * Compares the actual and expected of the same type.
+   */
+  expect_t* seql(T expected) {
+    return this->equal(expected);
+  };
+
+  /**
+   * Compares the actual and expected of different types.
+   */
+  expect_t* strict_equal(const char* expected) {
     return this->strict_equal<std::string>(std::string(expected));
   }
 
-	/**
-	 * Compares the actual and expected of different types.
-	 */
-	template <typename U>
-	expect_t* strict_equal(U expected) {
-		bool result = mocha_comparator<type_t<T>, type_t<U>>().strict_equal(this->actual, expected);
-		// bool is_same_type = std::is_same<decltype(this->actual), decltype(expected)>::value;
-		this->add_result_t(
-			result,
-			"Expected " + to_string(this->actual) + " to strictly " + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
-		);
-		return this;
-	};
+  /**
+   * Compares the actual and expected of different types.
+   */
+  template <typename U>
+  expect_t* strict_equal(U expected) {
+    bool result = mocha_comparator<type_t<T>, type_t<U>>().strict_equal(this->actual, expected);
+    // bool is_same_type = std::is_same<decltype(this->actual), decltype(expected)>::value;
+    this->add_result_t(
+      result,
+      "Expected " + to_string(this->actual) + " to strictly " + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
+    );
+    return this;
+  };
 
-	/**
-	 * [alias]
-	 * Compares the actual and expected of different types.
-	 */
-	template <typename U>
-	expect_t* seql(U expected) {
-		return this->strict_equal(expected);
-	};
+  /**
+   * [alias]
+   * Compares the actual and expected of different types.
+   */
+  template <typename U>
+  expect_t* seql(U expected) {
+    return this->strict_equal(expected);
+  };
 
-	/**
-	 * Compares the actual and expected of different types using a custom comparator function.
-	 */
-	template <typename U>
-	expect_t* strict_equal(U expected, const mocha_comparator<T, U>& comparator) {
-		bool result = comparator.strict_equal(this->actual, expected);
-		this->add_result_t(
-			result,
-			"Expected " + to_string(this->actual) + " to strictly" + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
-		);
+  /**
+   * Compares the actual and expected of different types using a custom comparator function.
+   */
+  template <typename U>
+  expect_t* strict_equal(U expected, const mocha_comparator<T, U>& comparator) {
+    bool result = comparator.strict_equal(this->actual, expected);
+    this->add_result_t(
+      result,
+      "Expected " + to_string(this->actual) + " to strictly" + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
+    );
 
-		return this;
-	};
+    return this;
+  };
 
-	/**
-	 * [alias]
-	 * Compares the actual and expected of different types using a custom comparator function.
-	 */
-	template <typename U>
-	expect_t* seql(U expected, const mocha_comparator<T, U>& comparator) {
-		return this->strict_equal(expected, comparator);
-	};
+  /**
+   * [alias]
+   * Compares the actual and expected of different types using a custom comparator function.
+   */
+  template <typename U>
+  expect_t* seql(U expected, const mocha_comparator<T, U>& comparator) {
+    return this->strict_equal(expected, comparator);
+  };
 
-	/**
-	 * Compares the actual and expected of different types using a custom comparator function.
-	 */
-	template <typename U>
-	expect_t* strict_equal(U expected, comparator_lambda<T, U> comparator) {
-		bool result = comparator(this->actual, expected);
-		this->add_result_t(
-			result,
-			"Expected " + to_string(this->actual) + " to strictly" + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
-		);
+  /**
+   * Compares the actual and expected of different types using a custom comparator function.
+   */
+  template <typename U>
+  expect_t* strict_equal(U expected, comparator_lambda<T, U> comparator) {
+    bool result = comparator(this->actual, expected);
+    this->add_result_t(
+      result,
+      "Expected " + to_string(this->actual) + " to strictly" + (this->flags.negate ? "not " : "") + "equal " + to_string(expected)
+    );
 
-		return this;
-	};		
+    return this;
+  };
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* strict_equal(bool expected, comparator_lambda<T, bool> comparator) {
     return this->strict_equal<bool>(expected, comparator);
   }
 
   /**
-	 * Compares the actual and expected of the same type.
-   */ 
+   * Compares the actual and expected of the same type.
+   */
   expect_t* strict_equal(short int expected, comparator_lambda<T, short int> comparator) {
     return this->strict_equal<short int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* strict_equal(unsigned short int expected, comparator_lambda<T, unsigned short int> comparator) {
     return this->strict_equal<unsigned short int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* strict_equal(unsigned int expected, comparator_lambda<T, unsigned int> comparator) {
     return this->strict_equal<unsigned int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* strict_equal(int expected, comparator_lambda<T, int> comparator) {
     return this->strict_equal<int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* strict_equal(unsigned long int expected, comparator_lambda<T, unsigned long int> comparator) {
     return this->strict_equal<unsigned long int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* strict_equal(long long int expected, comparator_lambda<T, long long int> comparator) {
     return this->strict_equal<long long int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* strict_equal(unsigned long long int expected, comparator_lambda<T, unsigned long long int> comparator) {
     return this->strict_equal<unsigned long long int>(expected, comparator);
   }
-	
+
   /**
-	* Compares the actual and expected of the same type.
-  */ 
+  * Compares the actual and expected of the same type.
+  */
   expect_t* strict_equal(unsigned char expected, comparator_lambda<T, unsigned char> comparator) {
     return this->strict_equal<unsigned char>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* strict_equal(char expected, comparator_lambda<T, char> comparator) {
     return this->strict_equal<char>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* strict_equal(float expected, comparator_lambda<T, float> comparator) {
     return this->strict_equal<float>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* strict_equal(long double expected, comparator_lambda<T, long double> comparator) {
     return this->strict_equal<long double>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* strict_equal(wchar_t expected, comparator_lambda<T, wchar_t> comparator) {
     return this->strict_equal<wchar_t>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* strict_equal(const char* expected, comparator_lambda<T, const char*> comparator) {
     return this->strict_equal<const char*>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* strict_equal(const std::string& expected, comparator_lambda<T, const std::string&> comparator) {
     return this->strict_equal<const std::string&>(expected, comparator);
   }
 
-	/**
-	 * [alias]
-	 * Compares the actual and expected of different types using a custom comparator function.
-	 */
-	template <typename U>
-	expect_t* seql(U expected, comparator_lambda<T, U> comparator) {
-		return this->strict_equal(expected, comparator);
-	};
+  /**
+   * [alias]
+   * Compares the actual and expected of different types using a custom comparator function.
+   */
+  template <typename U>
+  expect_t* seql(U expected, comparator_lambda<T, U> comparator) {
+    return this->strict_equal(expected, comparator);
+  };
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* seql(bool expected, comparator_lambda<T, bool> comparator) {
     return this->seql<bool>(expected, comparator);
   }
 
   /**
-	 * Compares the actual and expected of the same type.
-   */ 
+   * Compares the actual and expected of the same type.
+   */
   expect_t* seql(short int expected, comparator_lambda<T, short int> comparator) {
     return this->seql<short int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* seql(unsigned short int expected, comparator_lambda<T, unsigned short int> comparator) {
     return this->seql<unsigned short int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* seql(unsigned int expected, comparator_lambda<T, unsigned int> comparator) {
     return this->seql<unsigned int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* seql(int expected, comparator_lambda<T, int> comparator) {
     return this->seql<int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* seql(unsigned long int expected, comparator_lambda<T, unsigned long int> comparator) {
     return this->seql<unsigned long int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* seql(long long int expected, comparator_lambda<T, long long int> comparator) {
     return this->seql<long long int>(expected, comparator);
   }
 
-	/**
-	 * Compares the actual and expected of the same type.
-   */ 
+  /**
+   * Compares the actual and expected of the same type.
+   */
   expect_t* seql(unsigned long long int expected, comparator_lambda<T, unsigned long long int> comparator) {
     return this->seql<unsigned long long int>(expected, comparator);
   }
-	
+
   /**
-	* Compares the actual and expected of the same type.
-  */ 
+  * Compares the actual and expected of the same type.
+  */
   expect_t* seql(unsigned char expected, comparator_lambda<T, unsigned char> comparator) {
     return this->seql<unsigned char>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* seql(char expected, comparator_lambda<T, char> comparator) {
     return this->seql<char>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* seql(float expected, comparator_lambda<T, float> comparator) {
     return this->seql<float>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* seql(long double expected, comparator_lambda<T, long double> comparator) {
     return this->seql<long double>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* seql(wchar_t expected, comparator_lambda<T, wchar_t> comparator) {
     return this->seql<wchar_t>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* seql(const char* expected, comparator_lambda<T, const char*> comparator) {
     return this->seql<const char*>(expected, comparator);
   }
 
-	/**
-	* Compares the actual and expected of the same type.
-  */ 
+  /**
+  * Compares the actual and expected of the same type.
+  */
   expect_t* seql(const std::string& expected, comparator_lambda<T, const std::string&> comparator) {
     return this->seql<const std::string&>(expected, comparator);
   }
 
-	expect_t* close_to(double expected) {
-		return this->close_to(expected, 0.0001);
-	};
+  expect_t* close_to(double expected) {
+    return this->close_to(expected, 0.0001);
+  };
 
-	expect_t* close_to(double expected, double tolerance) {
-		this->add_result_t(
-			fabs(this->actual - expected) <= tolerance,
-			"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + (to_string(expected) + " within tolerance of " + to_string(tolerance))
-		);
+  expect_t* close_to(double expected, double tolerance) {
+    this->add_result_t(
+      fabs(this->actual - expected) <= tolerance,
+      "Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "equal " + (to_string(expected) + " within tolerance of " + to_string(tolerance))
+    );
 
-		return this;
-	};
+    return this;
+  };
 
-	expect_t* within(double lower, double upper) {
-		this->add_result_t(
-			this->actual > lower && this->actual < upper,
-			"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be above " + to_string(lower) + " and below " + to_string(upper)
-		);
+  expect_t* within(double lower, double upper) {
+    this->add_result_t(
+      this->actual > lower && this->actual < upper,
+      "Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be above " + to_string(lower) + " and below " + to_string(upper)
+    );
 
-		return this;
-	};
-
-
-	expect_t* above(double expected) {
-		this->add_result_t(
-			this->actual > expected,
-			"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be greater than " + to_string(expected)
-		);
-
-		return this;
-	};
-	expect_t* gt(double expected) {
-		return this->above(expected);
-	};
-	expect_t* greater_than(double expected) {
-		return this->above(expected);
-	};
-
-	expect_t* least(double expected) {
-		this->add_result_t(
-			this->actual >= expected,
-			"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be greater than or equal to " + to_string(expected)
-		);
-
-		return this;
-	};
-	expect_t* gte(double expected) {
-		return this->least(expected);
-	};
-
-	expect_t* below(double expected) {
-		this->add_result_t(
-			this->actual < expected,
-			"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be lesser than " + to_string(expected)
-		);
-
-		return this;
-	};
-
-	expect_t* lt(double expected) {
-		return this->below(expected);
-	};
-
-	expect_t* less_than(double expected) {
-		return this->below(expected);
-	};
-
-	expect_t* most(double expected) {
-		this->add_result_t(
-			this->actual <= expected,
-			"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be less than or equal to " + to_string(expected)
-		);
-
-		return this;
-	};
-
-	expect_t* lte(double expected) {
-		return this->most(expected);
-	};
-
-	expect_t* satisfy(std::function<bool (T)> lambda_test) {
-		bool result = lambda_test(this->actual);
-		return this->satisfy(
-			result,
-			"Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "satisfy the given test"
-		);
-	};
-
-	expect_t* satisfy(std::function<bool (T)> lambda_test, std::function<std::string (T, test_flags)> lambda_fail) {
-		bool result = lambda_test(this->actual);
-		std::string message = lambda_fail(this->actual, this->flags);
-
-		return this->satisfy(result, message);
-	};
-
-	template <typename U>
-	expect_t* satisfy(U expected, mocha_plugin<T, U> plugin) {
-		bool result = plugin.lambda_test(this->actual, expected);
-		std::string message = plugin.lambda_fail(this->actual, expected, this->flags);
-
-		return this->satisfy(result, message);
-	};
-
-	expect_t* satisfy(bool result, std::string message) {
-		this->add_result_t(
-			result,
-			message
-		);
-
-		return this;
-	};
-
-	class member_logic {
-		expect_t* expect_pointer;
-		std::function<void (expect_t*)> getter_lambda;
-		public:
-			member_logic(expect_t *i, std::function<void (expect_t*)> getter_lambda) : expect_pointer(i), getter_lambda(getter_lambda) {};
-
-			// Setter
-			expect_t* operator = (const expect_t i) {
-				return this->expect_pointer = (expect_t*)&i;
-
-			};
-			
-			// Setter
-			expect_t* operator = (const expect_t *i) {
-				return this->expect_pointer = (expect_t*)i;
-			};
-			
-			// Getter
-			expect_t* operator -> () {
-				this->getter_lambda(this->expect_pointer);
-				return this->expect_pointer;
-			};
-
-			// Getter
-			operator expect_t* () const {
-				this->getter_lambda(this->expect_pointer);
-				return this->expect_pointer;
-			};
-	};
+    return this;
+  };
 
 
-	// Sets the negate flag when used
-	// expect<int>(3).to->never->equal->(5);
-	member_logic never{this, [&](expect_t* expect_pointer) {
-		expect_pointer->flags.negate = !expect_pointer->flags.negate;
-	}};
+  expect_t* above(double expected) {
+    this->add_result_t(
+      this->actual > expected,
+      "Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be greater than " + to_string(expected)
+    );
+
+    return this;
+  };
+  expect_t* gt(double expected) {
+    return this->above(expected);
+  };
+  expect_t* greater_than(double expected) {
+    return this->above(expected);
+  };
+
+  expect_t* least(double expected) {
+    this->add_result_t(
+      this->actual >= expected,
+      "Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be greater than or equal to " + to_string(expected)
+    );
+
+    return this;
+  };
+  expect_t* gte(double expected) {
+    return this->least(expected);
+  };
+
+  expect_t* below(double expected) {
+    this->add_result_t(
+      this->actual < expected,
+      "Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be lesser than " + to_string(expected)
+    );
+
+    return this;
+  };
+
+  expect_t* lt(double expected) {
+    return this->below(expected);
+  };
+
+  expect_t* less_than(double expected) {
+    return this->below(expected);
+  };
+
+  expect_t* most(double expected) {
+    this->add_result_t(
+      this->actual <= expected,
+      "Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "be less than or equal to " + to_string(expected)
+    );
+
+    return this;
+  };
+
+  expect_t* lte(double expected) {
+    return this->most(expected);
+  };
+
+  expect_t* satisfy(std::function<bool (T)> lambda_test) {
+    bool result = lambda_test(this->actual);
+    return this->satisfy(
+      result,
+      "Expected " + to_string(this->actual) + " to " + (this->flags.negate ? "not " : "") + "satisfy the given test"
+    );
+  };
+
+  expect_t* satisfy(std::function<bool (T)> lambda_test, std::function<std::string (T, test_flags)> lambda_fail) {
+    bool result = lambda_test(this->actual);
+    std::string message = lambda_fail(this->actual, this->flags);
+
+    return this->satisfy(result, message);
+  };
+
+  template <typename U>
+  expect_t* satisfy(U expected, mocha_plugin<T, U> plugin) {
+    bool result = plugin.lambda_test(this->actual, expected);
+    std::string message = plugin.lambda_fail(this->actual, expected, this->flags);
+
+    return this->satisfy(result, message);
+  };
+
+  expect_t* satisfy(bool result, std::string message) {
+    this->add_result_t(
+      result,
+      message
+    );
+
+    return this;
+  };
+
+  class member_logic {
+    expect_t* expect_pointer;
+    std::function<void (expect_t*)> getter_lambda;
+    public:
+      member_logic(expect_t *i, std::function<void (expect_t*)> getter_lambda) : expect_pointer(i), getter_lambda(getter_lambda) {};
+
+      // Setter
+      expect_t* operator = (const expect_t i) {
+        return this->expect_pointer = (expect_t*)&i;
+
+      };
+
+      // Setter
+      expect_t* operator = (const expect_t *i) {
+        return this->expect_pointer = (expect_t*)i;
+      };
+
+      // Getter
+      expect_t* operator -> () {
+        this->getter_lambda(this->expect_pointer);
+        return this->expect_pointer;
+      };
+
+      // Getter
+      operator expect_t* () const {
+        this->getter_lambda(this->expect_pointer);
+        return this->expect_pointer;
+      };
+  };
+
+
+  // Sets the negate flag when used
+  // expect<int>(3).to->never->equal->(5);
+  member_logic never{this, [&](expect_t* expect_pointer) {
+    expect_pointer->flags.negate = !expect_pointer->flags.negate;
+  }};
 
 
 
-	// Provided as chainable getters to improve the readability of your assertions.
-	// They do not provide testing capabilities.
-	expect_t* to = this;
-	expect_t* be = this;
-	expect_t* been = this;
-	expect_t* is = this;
-	expect_t* that = this;
-	expect_t* which = this;
-	// `and` is a reserved keyword
-	expect_t* then = this;//expect_t* and = this;
-	expect_t* has = this;
-	expect_t* have = this;
-	expect_t* with = this;
-	expect_t* at = this;
-	expect_t* of = this;
-	expect_t* same = this;
+  // Provided as chainable getters to improve the readability of your assertions.
+  // They do not provide testing capabilities.
+  expect_t* to = this;
+  expect_t* be = this;
+  expect_t* been = this;
+  expect_t* is = this;
+  expect_t* that = this;
+  expect_t* which = this;
+  // `and` is a reserved keyword
+  expect_t* then = this;//expect_t* and = this;
+  expect_t* has = this;
+  expect_t* have = this;
+  expect_t* with = this;
+  expect_t* at = this;
+  expect_t* of = this;
+  expect_t* same = this;
 
-	result_t result() {
-		return result_;
-	};
+  result_t result() {
+    return result_;
+  };
 
-	operator bool() {
-		return result_.did_pass;
-	};
+  operator bool() {
+    return result_.did_pass;
+  };
 
-	protected:
-		T actual;
-		test_flags flags;
-		result_t result_;
+  protected:
+    T actual;
+    test_flags flags;
+    result_t result_;
 
-		void add_result_t(bool result, std::string message) {
-			bool did_pass = (this->flags.negate ? !result : result);
-			result_.did_pass = result_.did_pass && did_pass;
-			result_.message = did_pass ? _mocha_util.color_green(message) : _mocha_util.color_red(message);
-			// Reset the flag
-			this->flags.negate = false;
-		};
+    void add_result_t(bool result, std::string message) {
+      bool did_pass = (this->flags.negate ? !result : result);
+      result_.did_pass = result_.did_pass && did_pass;
+      result_.message = did_pass ? _mocha_util.color_green(message) : _mocha_util.color_red(message);
+      // Reset the flag
+      this->flags.negate = false;
+    };
 
-		template<typename U>
-		std::string to_string(U value) {
-			return _mocha_util.is_string<U>() ? "\"" + utils::to_string(value) + "\"" : utils::to_string(value);
-		}
+    template<typename U>
+    std::string to_string(U value) {
+      return _mocha_util.is_string<U>() ? "\"" + utils::to_string(value) + "\"" : utils::to_string(value);
+    }
 };
 
 template <typename T>
