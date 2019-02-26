@@ -8,7 +8,6 @@
 //		- Visual Studio
 #ifndef MOCHA_H
 #define MOCHA_H
-#include <any>
 #include <cmath>
 #include <cstring>
 #include <functional>
