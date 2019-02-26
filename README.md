@@ -32,7 +32,7 @@ buck test :test
 
 mocha has a main function that you can use to remove some boilerplate from your testing code.
 
-On the desktop platform, you can pass in command-line arguments/flags.
+> You can pass in command-line arguments/flags.
 
 ```cpp
 // This tells mocha to provide a main function. Only do this in one source/cpp file
