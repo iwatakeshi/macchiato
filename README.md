@@ -110,8 +110,8 @@ describe("Car", [&]() {
   });
 
   // Test values with different types
-  it("should fail", [&] () {
-    return expect(Car().hasEngineStarted()).to->equal("true")->result();
+  it("should start engine", [&] () {
+    return expect(Car().hasEngineStarted()).to->strict_equal("true")->result();
   });
 
   // Test values with same or different types using a mocha comparator
@@ -127,7 +127,7 @@ describe("Car", [&]() {
     auto comparator = [&] (Car a, int b) {
       return a.getNumDoors() == b;
     });
-    return expect<MyCar>(Car()).to->equal<int>(4, comparator)->result();
+    return expect(Car()).to->equal(4, comparator)->result();
   });
 });
 
