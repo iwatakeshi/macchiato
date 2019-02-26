@@ -220,7 +220,7 @@ describe("Some numbers", [&]() {
 });
 ```
 
-# Options:
+## Options:
 
   - `mocha::mocha_settings`
     - `use_color`: bool - whether to add ANSI escape codes for colored text. (Supported in many consoles)
@@ -231,7 +231,7 @@ describe("Some numbers", [&]() {
     - `debug`: Enables debugging statements to output during tests.
 
 
-# CLI flags
+## CLI flags
 
 If you are using the mocha main runner these commands will be parsed automattically.
 
@@ -253,7 +253,7 @@ int main (int argc, char * const argv[]) {
 
 
 
-# Differences from mocha.js
+## Differences from mocha.js
 
 We strive to make the API syntax the same between mocha and mocha. Some sacrifices had to be made for C++.
 
