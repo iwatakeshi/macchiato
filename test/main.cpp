@@ -198,34 +198,34 @@ int main() {
 
         describe("comparison of type T and U", [&] {
           
-          // it("should: true == 1", [&] () {
-          // 	return expect(true).to->never->strict_equal(1)->result();
-          // });
+          it("should: true == 1", [&] () {
+          	return expect(true).to->never->strict_equal(1)->result();
+          });
 
-          // it("should: 1 == 1.0", [&]() {
-          // 	return expect(1).to->never->strict_equal(1.0)->result();
-          // });
+          it("should: 1 == 1.0", [&]() {
+          	return expect(1).to->never->strict_equal(1.0)->result();
+          });
 
-          // it("should: 1 == \"1\"", [&]() {
-          // 	std::string b = "1";
-          // 	return expect(1).to->never->strict_equal(b)->result();
-          // });
+          it("should: 1 == \"1\"", [&]() {
+          	std::string b = "1";
+          	return expect(1).to->never->strict_equal(b)->result();
+          });
 
-          // it("should: 1.7 == 2", [&]() {
-          // 	return expect(1.7).to->strict_equal(2)->result();
-          // });
+          it("should: 1.7 == 2", [&]() {
+          	return expect(1.7).to->never->strict_equal(2)->result();
+          });
 
-          // it("should: 1.7 == \"1.7\"", [&]() {
-          // 	return expect(1.7).to->never->strict_equal("1.7")->result();
-          // });
+          it("should: 1.7 == \"1.7\"", [&]() {
+          	return expect(1.7).to->never->strict_equal("1.7")->result();
+          });
 
-          // it("should: 1.7 != 'a'", [&]() {
-          // 	return expect(1.7).to->never->strict_equal('a')->result();
-          // });
+          it("should: 1.7 != 'a'", [&]() {
+          	return expect(1.7).to->never->strict_equal('a')->result();
+          });
 
-          // it("should: 'a' == \"a\"", [&]() {
-          // 	return expect('a').to->never->strict_equal("a")->result();
-          // });
+          it("should: 'a' == \"a\"", [&]() {
+          	return expect('a').to->never->strict_equal("a")->result();
+          });
         }); // end - equal comparison of type T and U
       });
 
