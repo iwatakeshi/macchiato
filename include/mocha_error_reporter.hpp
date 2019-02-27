@@ -1,0 +1,4 @@
+#ifndef MOCHA_ERROR_REPORTER
+#define MOCHA_ERROR_REPORTER
+
+#endif

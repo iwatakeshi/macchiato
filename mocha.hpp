@@ -36,8 +36,7 @@ void clear() {
   _mocha_util.clear();
 };
 
-template <typename T, typename U>
-using comparator_lambda = std::function<bool(T, U)>;
+
 
 template <typename T>
 using string_t = typename std::conditional<std::is_fundamental<T>::value, std::string, const std::string&>::type;
@@ -976,7 +975,7 @@ namespace mocha {
     // The reset is only necessary if we were reptively runnin then outputting
     //mocha::clear();
     mocha::_run_all_registered_tests_from_macro();
-    std::cout << mocha::summary() << std::endl;
+    mocha::print_summary();
 
     return 0;
   }

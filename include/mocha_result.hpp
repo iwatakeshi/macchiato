@@ -4,6 +4,10 @@
 #include "mocha_util.hpp"
 
 namespace mocha {
+	enum __mocha_result_state {
+			pass, fail, pending
+		};
+
   struct result_t {
 		std::string message;
 		bool did_pass = true;

@@ -45,7 +45,9 @@ type_name() {
 
 // TODO: Add additional types to compare against.
 namespace mocha {
-  
+
+template <typename T, typename U>
+using comparator_lambda = std::function<bool(T, U)>;
 
 template <typename T>
 inline bool __equal(T a, T b) { return a == b; };
